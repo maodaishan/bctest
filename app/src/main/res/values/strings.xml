@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">BCTest</string>
     <string name="action_settings">Settings</string>
+    <string name="chain_home_empty">Now we only have EOS tests</string>
+
+
 </resources>
