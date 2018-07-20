@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.maods.bctest.ChainCommonOperations;
+import com.maods.bctest.EOS.EOSOperations;
 import com.maods.bctest.GlobalConstants;
 import com.maods.bctest.R;
 
@@ -34,9 +36,11 @@ public class ChainHomeActivity extends Activity {
 
     String mTarget;
     String[] mTargetActions;
+    private ChainCommonOperations mCommonOps=null;
 
     private LinearLayout mContentView;
     private TextView mTitleView;
+    private TextView mInfoView;
     private ListView mListView;
     private TextView mEmptyView;
     private ArrayAdapter<String> mAdapter;
@@ -46,6 +50,7 @@ public class ChainHomeActivity extends Activity {
         setContentView(R.layout.chain_home);
         mContentView=(LinearLayout)findViewById(R.id.container);
         mTitleView=(TextView)findViewById(R.id.title);
+        mInfoView=(TextView)findViewById(R.id.info);
         mEmptyView=(TextView)findViewById(R.id.empty);
         mListView=(ListView)findViewById(R.id.list);
 
@@ -60,6 +65,7 @@ public class ChainHomeActivity extends Activity {
                 break;
             case GlobalConstants.EOS:
                 mTargetActions = EOS_actions;
+                mCommonOps=new EOSOperations();
                 break;
             case GlobalConstants.FABRIC:
                 mTargetActions = Fabric_actions;
@@ -83,7 +89,36 @@ public class ChainHomeActivity extends Activity {
             });
         }
 
+        if(mCommonOps!=null){
+            Thread t=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final List<String> serverNodes=mCommonOps.getServerNode();
+                    ChainHomeActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateInfo(serverNodes);
+                        }
+                    });
+                }
+            });
+            t.start();
+        }
     }
+
+    private void updateInfo(List<String>servers){
+        if(servers.size()==0){
+            mInfoView.setText(R.string.no_server_available);
+        }else{
+            StringBuilder sb=new StringBuilder();
+            for(int i=0;i<servers.size();i++){
+                sb.append(servers.get(i)+"\n");
+            }
+            String serversStr=String.format(getResources().getString(R.string.available_servers),sb.toString());
+            mInfoView.setText(serversStr);
+        }
+    }
+
     private void handleOnItemClickInUIThread(View view,int position){
         switch(mTarget){
             case GlobalConstants.EOS:{
