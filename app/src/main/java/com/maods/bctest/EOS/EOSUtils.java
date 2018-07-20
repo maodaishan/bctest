@@ -36,7 +36,7 @@ public class EOSUtils {
 
 
     //Can't run in UI thread
-    public static List<String> getAvailableSeeds(){
+    public static List<String> getAvailableServers(){
         synchronized (mServerTestSync){
             if(sServerTested){
                 return sServerNodes;

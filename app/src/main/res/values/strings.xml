@@ -3,7 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="chain_home_empty">Now we only have EOS tests</string>
     <string name="no_server_available">No available server</string>
-    <string name="available_servers">Available servers:\n%1$s
-        </string>
-
+    <string name="available_servers">Available servers:\n%1$s</string>
+    <string name="processing">Processing</string>
+    <string name="get_info_error">Failed to get requested info.</string>
 </resources>
