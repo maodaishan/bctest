@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.widget.TextView;
 
 import com.maods.bctest.EOS.EOSOperations;
+import com.maods.bctest.EOS.EOSUtils;
 import com.maods.bctest.GlobalConstants;
 import com.maods.bctest.R;
 
@@ -49,7 +50,7 @@ public class EOSInfoActivity extends Activity {
             mAlertDialog.dismiss();
             mAlertDialog=null;
         }
-        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder=new AlertDialog.Builder(this);
         builder.setMessage(R.string.processing);
         mAlertDialog=builder.create();
         mAlertDialog.show();
@@ -57,7 +58,14 @@ public class EOSInfoActivity extends Activity {
         Thread t=new Thread(new Runnable() {
             @Override
             public void run() {
-                mContent=EOSOperations.getInfo();
+                switch(mAction){
+                    case EOSOperations.ACTION_GET_INFO:
+                        mContent = EOSOperations.getInfo();
+                        break;
+                    default:
+                        mContent=null;
+                        break;
+                }
                 EOSInfoActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

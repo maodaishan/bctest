@@ -28,8 +28,6 @@ public class EOSUtils {
     public static final String API_NET="net";
     public static final String API_PRODUCER="producer";
 
-    public static final String ACTION_GET_INFO="get_info";
-
     private static Object mServerTestSync=new Object();
     private static boolean sServerTested=false;
     private static List<String> sServerNodes=new ArrayList<String>();
@@ -47,7 +45,7 @@ public class EOSUtils {
                 URL url=null;
                 try {
                     StringBuilder sb=new StringBuilder(target);
-                    sb.append("/"+VERSION+"/"+API_CHAIN+"/"+ACTION_GET_INFO);
+                    sb.append("/"+VERSION+"/"+API_CHAIN+"/"+EOSOperations.ACTION_GET_INFO);
                     url=new URL(sb.toString());
                 } catch (MalformedURLException e) {
                     e.printStackTrace();

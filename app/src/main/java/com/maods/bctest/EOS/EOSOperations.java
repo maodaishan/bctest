@@ -17,6 +17,8 @@ import java.util.List;
 public class EOSOperations implements ChainCommonOperations {
     private static final String TAG="EOSOperations";
 
+    public static final String ACTION_GET_INFO="get_info";
+
     @Override
     public List<String> getServerNode(){
         return EOSUtils.getAvailableServers();
@@ -36,7 +38,7 @@ public class EOSOperations implements ChainCommonOperations {
         for(int i=0;i<servers.size();i++){
             String server=servers.get(i);
             StringBuilder sb=new StringBuilder(server);
-            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+EOSUtils.ACTION_GET_INFO);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_GET_INFO);
             String url=sb.toString();
             String content=GlobalUtils.getContentFromUrl(url);
             Log.i(TAG,"geting info from:"+url+",content:"+content);

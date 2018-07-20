@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.maods.bctest.ChainCommonOperations;
 import com.maods.bctest.EOS.EOSOperations;
+import com.maods.bctest.EOS.EOSUtils;
 import com.maods.bctest.GlobalConstants;
 import com.maods.bctest.R;
 
@@ -30,7 +31,7 @@ public class ChainHomeActivity extends Activity {
     private static final String[] BTC_actions=new String[]{};
     private static final String[] ETH_actions=new String[]{};
     private static final String[] EOS_actions=new String[]{
-            GET_CHAIN_INFO
+            EOSOperations.ACTION_GET_INFO,
     };
     private static final String[] Fabric_actions=new String[]{};
 
@@ -123,7 +124,7 @@ public class ChainHomeActivity extends Activity {
         switch(mTarget){
             case GlobalConstants.EOS:{
                 switch(mTargetActions[position]){
-                    case GET_CHAIN_INFO:
+                    case EOSOperations.ACTION_GET_INFO:
                         startEOSGetChainInfo();
                         break;
                     default:
@@ -138,7 +139,7 @@ public class ChainHomeActivity extends Activity {
     private void startEOSGetChainInfo(){
         Intent intent=new Intent();
         intent.setClass(this,EOSInfoActivity.class);
-        intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,GlobalConstants.EXTRA_VALUE_EOS_GET_CHAIN_INFO);
+        intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,EOSOperations.ACTION_GET_INFO);
         startActivity(intent);
     }
 }
