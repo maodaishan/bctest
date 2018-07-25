@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +30,7 @@ public class EOSInfoActivity extends Activity {
     private String mContent;
     private boolean mNeedInput=false;
     private String mAccountName=null;
+    private String mBlockNum=null;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
@@ -45,7 +47,8 @@ public class EOSInfoActivity extends Activity {
         mEdit1=(EditText)findViewById(R.id.edit1);
         mBtn=(Button)findViewById(R.id.btn);
 
-        if(mAction.equals(EOSOperations.ACTION_GET_ACCOUNT)){
+        if(mAction.equals(EOSOperations.ACTION_GET_ACCOUNT)
+                ||mAction.equals(EOSOperations.ACTION_GET_BLOCK)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -54,7 +57,19 @@ public class EOSInfoActivity extends Activity {
                 }
             });
             mEdit1.setVisibility(View.VISIBLE);
-            mEdit1.setHint(R.string.input_account_name);
+            int hint=0;
+            switch(mAction){
+                case EOSOperations.ACTION_GET_ACCOUNT:
+                    hint=R.string.input_account_name;
+                    break;
+                case EOSOperations.ACTION_GET_BLOCK:
+                    mEdit1.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    hint=R.string.input_block_num;
+                    break;
+                default:
+                    break;
+            }
+            mEdit1.setHint(hint);
             mNeedInput=true;
         }
 
@@ -73,23 +88,25 @@ public class EOSInfoActivity extends Activity {
     }
 
     private void onBtnClicked(){
-        if(mAction.equals(EOSOperations.ACTION_GET_ACCOUNT)){
-            mAccountName=mEdit1.getText().toString();
-            boolean isAccountNameLegel=isAccountNameLeagle(mAccountName);
-            if(!isAccountNameLegel){
-                AlertDialog.Builder builder=new AlertDialog.Builder(this);
-                builder.setMessage(R.string.eos_account_length_err);
-                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                builder.create().show();
-            }else {
-                //Log.i(TAG,"mAccountName:"+mAccountName);
-                startAction();
-            }
+        switch(mAction){
+            case EOSOperations.ACTION_GET_ACCOUNT:
+                mAccountName=mEdit1.getText().toString();
+                boolean isAccountNameLegel=isAccountNameLeagle(mAccountName);
+                if(!isAccountNameLegel){
+                    showAlertMsg(R.string.eos_account_length_err);
+                }else {
+                    //Log.i(TAG,"mAccountName:"+mAccountName);
+                    startAction();
+                }
+                break;
+            case EOSOperations.ACTION_GET_BLOCK:
+                mBlockNum=mEdit1.getText().toString();
+                int num=Integer.valueOf(mBlockNum);
+                if(num<=0){
+                    showAlertMsg(R.string.block_num_error);
+                }else{
+                    startAction();
+                }
         }
     }
     private boolean isAccountNameLeagle(String input){
@@ -127,6 +144,9 @@ public class EOSInfoActivity extends Activity {
                         mContent=EOSOperations.getAccount(mAccountName);
                         //Log.i(TAG,"mContent:"+mContent);
                         break;
+                    case EOSOperations.ACTION_GET_BLOCK:
+                        mContent=EOSOperations.getBlock(mBlockNum);
+                        break;
                     default:
                         mContent=null;
                         break;
@@ -157,5 +177,16 @@ public class EOSInfoActivity extends Activity {
         }else{
             mContentView.setText(R.string.get_info_error);
         }
+    }
+    private void showAlertMsg(int msg){
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setMessage(msg);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
     }
 }

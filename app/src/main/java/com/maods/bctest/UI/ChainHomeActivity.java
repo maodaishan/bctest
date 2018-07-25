@@ -33,6 +33,7 @@ public class ChainHomeActivity extends Activity {
     private static final String[] EOS_actions=new String[]{
             EOSOperations.ACTION_GET_INFO,
             EOSOperations.ACTION_GET_ACCOUNT,
+            EOSOperations.ACTION_GET_BLOCK
     };
     private static final String[] Fabric_actions=new String[]{};
 
@@ -126,10 +127,10 @@ public class ChainHomeActivity extends Activity {
             case GlobalConstants.EOS:{
                 switch(mTargetActions[position]){
                     case EOSOperations.ACTION_GET_INFO:
-                        startEOSGetChainInfo();
-                        break;
                     case EOSOperations.ACTION_GET_ACCOUNT:
-                        startEOSGetAccount();
+                    case EOSOperations.ACTION_GET_BLOCK:
+                        startEOSGetInfo(mTargetActions[position]);
+                        break;
                     default:
                         break;
                 }
@@ -139,16 +140,10 @@ public class ChainHomeActivity extends Activity {
                 break;
         }
     }
-    private void startEOSGetChainInfo(){
+    private void startEOSGetInfo(String action){
         Intent intent=new Intent();
         intent.setClass(this,EOSInfoActivity.class);
-        intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,EOSOperations.ACTION_GET_INFO);
-        startActivity(intent);
-    }
-    private void startEOSGetAccount(){
-        Intent intent=new Intent();
-        intent.setClass(this,EOSInfoActivity.class);
-        intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,EOSOperations.ACTION_GET_ACCOUNT);
+        intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,action);
         startActivity(intent);
     }
 }
