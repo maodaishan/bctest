@@ -26,6 +26,13 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:text="@android:string/ok"/>
+            <Button
+                android:id="@+id/copy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                android:enabled="false"
+                android:text="@string/copy_to_clipboard"/>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
     <TextView

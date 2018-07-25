@@ -2,6 +2,9 @@ package com.maods.bctest.UI;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
@@ -11,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.maods.bctest.EOS.EOSOperations;
 import com.maods.bctest.EOS.EOSUtils;
@@ -36,6 +40,7 @@ public class EOSInfoActivity extends Activity {
     private AlertDialog mAlertDialog;
     private EditText mEdit1;
     private Button mBtn;
+    private Button mBtnCopy;
 
     @Override
     public void onCreate(Bundle savedInstance){
@@ -46,6 +51,19 @@ public class EOSInfoActivity extends Activity {
         mContentView=(TextView)findViewById(R.id.content);
         mEdit1=(EditText)findViewById(R.id.edit1);
         mBtn=(Button)findViewById(R.id.btn);
+        mBtnCopy=(Button)findViewById(R.id.copy);
+        mBtnCopy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String content=mContentView.getText().toString();
+                if(!TextUtils.isEmpty(content)) {
+                    ClipboardManager cMgr = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData data = ClipData.newPlainText("content",content);
+                    cMgr.setPrimaryClip(data);
+                    Toast.makeText(EOSInfoActivity.this,R.string.content_copyed_to_clipboard,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         if(mAction.equals(EOSOperations.ACTION_GET_ACCOUNT)
                 ||mAction.equals(EOSOperations.ACTION_GET_BLOCK)
@@ -196,6 +214,7 @@ public class EOSInfoActivity extends Activity {
             mAlertDialog.dismiss();
             mAlertDialog=null;
         }
+        mBtnCopy.setEnabled(true);
         if(!TextUtils.isEmpty(mContent)){
             StringBuilder sb=new StringBuilder();
             String[]items=mContent.split(",");

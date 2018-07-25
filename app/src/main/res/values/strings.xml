@@ -12,4 +12,6 @@
     <string name="input_block_num">Input block No.</string>
     <string name="block_num_error">Could only input positive integer</string>
     <string name="get_abi_account_err">Please input correct account which you want query ABI.</string>
+    <string name="copy_to_clipboard">Copy to Clip board</string>
+    <string name="content_copyed_to_clipboard">Result had been copied to Clip board.</string>
 </resources>
