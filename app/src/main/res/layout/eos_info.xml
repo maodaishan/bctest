@@ -2,16 +2,32 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout
-        android:id="@+id/container"
-        android:orientation="vertical"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/content"
+        <LinearLayout
+            android:id="@+id/container"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/edit1"
+                android:layout_width="@dimen/editor_length_short"
+                android:layout_height="wrap_content"
+                android:maxLength="12"
+                android:visibility="gone"/>
+            <Button
+                android:id="@+id/btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="@android:string/ok"/>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
     <TextView
         android:id="@+id/error"
         android:layout_gravity="center"

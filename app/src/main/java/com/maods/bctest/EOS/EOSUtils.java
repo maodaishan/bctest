@@ -27,6 +27,7 @@ public class EOSUtils {
     public static final String API_HISTORY="history";
     public static final String API_NET="net";
     public static final String API_PRODUCER="producer";
+    public static final int ACCOUNT_LENGTH=12;
 
     private static Object mServerTestSync=new Object();
     private static boolean sServerTested=false;
