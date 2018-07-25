@@ -49,7 +49,8 @@ public class EOSInfoActivity extends Activity {
 
         if(mAction.equals(EOSOperations.ACTION_GET_ACCOUNT)
                 ||mAction.equals(EOSOperations.ACTION_GET_BLOCK)
-                ||mAction.equals(EOSOperations.ACTION_GET_ABI)){
+                ||mAction.equals(EOSOperations.ACTION_GET_ABI)
+                ||mAction.equals(EOSOperations.ACTION_GET_CODE)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -62,6 +63,7 @@ public class EOSInfoActivity extends Activity {
             switch(mAction){
                 case EOSOperations.ACTION_GET_ACCOUNT:
                 case EOSOperations.ACTION_GET_ABI:
+                case EOSOperations.ACTION_GET_CODE:
                     hint=R.string.input_account_name;
                     break;
                 case EOSOperations.ACTION_GET_BLOCK:
@@ -118,6 +120,14 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
+            case EOSOperations.ACTION_GET_CODE:
+                mAccountName=mEdit1.getText().toString();
+                if(TextUtils.isEmpty(mAccountName)){
+                    showAlertMsg(R.string.get_abi_account_err);
+                }else {
+                    startAction();
+                }
+                break;
             default:
                 break;
         }
@@ -162,6 +172,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_GET_ABI:
                         mContent=EOSOperations.getABI(mAccountName);
+                        break;
+                    case EOSOperations.ACTION_GET_CODE:
+                        mContent=EOSOperations.getCode(mAccountName);
                         break;
                     default:
                         mContent=null;

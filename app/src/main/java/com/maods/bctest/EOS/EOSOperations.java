@@ -22,9 +22,12 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_ACCOUNT="get_account";
     public static final String ACTION_GET_BLOCK="get_block";
     public static final String ACTION_GET_ABI="get_abi";
+    public static final String ACTION_GET_CODE="get_code";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
+    private static final String PARAM_CODE_AS_WASM="code_as_wasm";
+    private static final String CODE_AS_WASM="false";
     @Override
     public List<String> getServerNode(){
         return EOSUtils.getAvailableServers();
@@ -125,6 +128,33 @@ public class EOSOperations implements ChainCommonOperations {
             params.put(PARAM_ACCOUNT_NAME,accountName);
             String content=GlobalUtils.postToServer(url,params);
             Log.i(TAG,"geting ABI from:"+url+"for account: "+accountName+",result:"+content);
+            if(!TextUtils.isEmpty(content)){
+                return content;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Can't be called in UI thread.
+     * Get Code
+     * ex. curl https://mainnet.eoscannon.io/v1/chain/get_abi -X POST -d {"account_name":"eosio"}
+     */
+    public static String getCode(String accountName){
+        List<String>servers=EOSUtils.getAvailableServers();
+        if(servers.size()==0){
+            return null;
+        }
+        for(int i=0;i<servers.size();i++){
+            String server=servers.get(i);
+            StringBuilder sb=new StringBuilder(server);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_GET_CODE);
+            String url=sb.toString();
+            HashMap<String,String> params=new HashMap<String,String>();
+            params.put(PARAM_ACCOUNT_NAME,accountName);
+            params.put(PARAM_CODE_AS_WASM,CODE_AS_WASM);
+            String content=GlobalUtils.postToServer(url,params);
+            Log.i(TAG,"geting Code from:"+url+"for account: "+accountName+",result:"+content);
             if(!TextUtils.isEmpty(content)){
                 return content;
             }
