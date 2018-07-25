@@ -21,6 +21,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_INFO="get_info";
     public static final String ACTION_GET_ACCOUNT="get_account";
     public static final String ACTION_GET_BLOCK="get_block";
+    public static final String ACTION_GET_ABI="get_abi";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
@@ -98,6 +99,32 @@ public class EOSOperations implements ChainCommonOperations {
             params.put(PARAM_BLOCK_NUMBER_OR_ID,blockNum);
             String content=GlobalUtils.postToServer(url,params);
             Log.i(TAG,"geting block from:"+url+"for block "+blockNum+",result:"+content);
+            if(!TextUtils.isEmpty(content)){
+                return content;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Can't be called in UI thread.
+     * Get ABI
+     * ex. curl https://mainnet.eoscannon.io/v1/chain/get_abi -X POST -d {"account_name":"eosio"}
+     */
+    public static String getABI(String accountName){
+        List<String>servers=EOSUtils.getAvailableServers();
+        if(servers.size()==0){
+            return null;
+        }
+        for(int i=0;i<servers.size();i++){
+            String server=servers.get(i);
+            StringBuilder sb=new StringBuilder(server);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_GET_ABI);
+            String url=sb.toString();
+            HashMap<String,String> params=new HashMap<String,String>();
+            params.put(PARAM_ACCOUNT_NAME,accountName);
+            String content=GlobalUtils.postToServer(url,params);
+            Log.i(TAG,"geting ABI from:"+url+"for account: "+accountName+",result:"+content);
             if(!TextUtils.isEmpty(content)){
                 return content;
             }

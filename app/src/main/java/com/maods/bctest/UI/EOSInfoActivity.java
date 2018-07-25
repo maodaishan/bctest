@@ -48,7 +48,8 @@ public class EOSInfoActivity extends Activity {
         mBtn=(Button)findViewById(R.id.btn);
 
         if(mAction.equals(EOSOperations.ACTION_GET_ACCOUNT)
-                ||mAction.equals(EOSOperations.ACTION_GET_BLOCK)){
+                ||mAction.equals(EOSOperations.ACTION_GET_BLOCK)
+                ||mAction.equals(EOSOperations.ACTION_GET_ABI)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -60,6 +61,7 @@ public class EOSInfoActivity extends Activity {
             int hint=0;
             switch(mAction){
                 case EOSOperations.ACTION_GET_ACCOUNT:
+                case EOSOperations.ACTION_GET_ABI:
                     hint=R.string.input_account_name;
                     break;
                 case EOSOperations.ACTION_GET_BLOCK:
@@ -107,6 +109,17 @@ public class EOSInfoActivity extends Activity {
                 }else{
                     startAction();
                 }
+                break;
+            case EOSOperations.ACTION_GET_ABI:
+                mAccountName=mEdit1.getText().toString();
+                if(TextUtils.isEmpty(mAccountName)){
+                    showAlertMsg(R.string.get_abi_account_err);
+                }else {
+                    startAction();
+                }
+                break;
+            default:
+                break;
         }
     }
     private boolean isAccountNameLeagle(String input){
@@ -146,6 +159,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_GET_BLOCK:
                         mContent=EOSOperations.getBlock(mBlockNum);
+                        break;
+                    case EOSOperations.ACTION_GET_ABI:
+                        mContent=EOSOperations.getABI(mAccountName);
                         break;
                     default:
                         mContent=null;

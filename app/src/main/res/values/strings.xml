@@ -11,4 +11,5 @@
     <string name="eos_account_length_err">Account name illegal, it should be 12 characters and only contains a-z,1-5.</string>
     <string name="input_block_num">Input block No.</string>
     <string name="block_num_error">Could only input positive integer</string>
+    <string name="get_abi_account_err">Please input correct account which you want query ABI.</string>
 </resources>
