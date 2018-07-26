@@ -151,6 +151,9 @@ public class EOSInfoActivity extends Activity {
         }
     }
     private boolean isAccountNameLeagle(String input){
+        if(input.startsWith("eos")){//for eos system accounts.
+            return true;
+        }
         if(input.length()!=EOSUtils.ACCOUNT_LENGTH){
             return false;
         }
