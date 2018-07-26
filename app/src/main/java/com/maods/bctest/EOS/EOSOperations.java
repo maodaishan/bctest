@@ -8,6 +8,10 @@ import android.widget.Toast;
 import com.maods.bctest.ChainCommonOperations;
 import com.maods.bctest.GlobalUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,6 +28,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_ABI="get_abi";
     public static final String ACTION_GET_CODE="get_code";
     public static final String ACTION_GET_TABLE_ROWS="get_table_rows";
+    public static final String ACTION_GET_RAM_PRICE="get_ram_price";        //actually this's not HTTP API, just for easy use
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
@@ -34,6 +39,8 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String PARAM_CODE="code";
     private static final String PARAM_JSON="json";
     private static final String RESULT_AS_JSON="true";
+    private static final String ACCOUNT_EOSIO="eosio";
+    private static final String TABLE_RAMMARKET="rammarket";
     @Override
     public List<String> getServerNode(){
         return EOSUtils.getAvailableServers();
@@ -196,4 +203,51 @@ public class EOSOperations implements ChainCommonOperations {
         }
         return null;
     }
+
+    /**
+     * Can't be called in UI thread.
+     * Get RamPrice
+     * the result is for every kB
+     * Actually use get_table_rows get needed info, then calculate it according bancor
+     * use: curl http://mainnet.eoscanada.com/v1/chain/get_table_rows -X POST -d {\"code\":\"eosio\",\"scope\":\"eosio\",\"table\":\"rammarket\",\"json\":\"true\"}
+     *                           EOS balance
+     * then: RAM price (/k)= -----------------------
+     *                           RAM left  * 1024
+     */
+    public static String getRamPrice(){
+        StringBuilder result=new StringBuilder();
+        String jsonStr=getTableRows("eosio","eosio","rammarket");
+        if(TextUtils.isEmpty(jsonStr)){
+            return null;
+        }
+        try {
+            JSONObject json=new JSONObject(jsonStr);
+            JSONArray rows=json.getJSONArray("rows");
+            JSONObject data=rows.getJSONObject(0);
+            JSONObject base=data.getJSONObject("base");
+            String ramBalance=base.getString("balance");
+            JSONObject quote = data.getJSONObject("quote");
+            String eosBalance=quote.getString("balance");
+            float ram=0;
+            float eos=0;
+            try {
+                //remove " RAM" and " EOS" from the string.
+                ramBalance=ramBalance.substring(0,ramBalance.length()-4);
+                eosBalance=eosBalance.substring(0,eosBalance.length()-4);
+                ram = Float.parseFloat(ramBalance);
+                eos = Float.parseFloat(eosBalance);
+                float ramPrice=eos/ram;//price for every Byte.
+                ramPrice=ramPrice*1024;//return value is for every KB.
+                result.append("RAM price:"+ramPrice);
+                result.append("\nOriginal data:"+jsonStr);
+            }catch(NumberFormatException e){
+                Log.e(TAG,"number format error，ram:"+ram+",eos:"+eos);
+                return jsonStr;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result.toString();
+    }
+
 }

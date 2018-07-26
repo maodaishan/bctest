@@ -37,6 +37,7 @@ public class ChainHomeActivity extends Activity {
             EOSOperations.ACTION_GET_ABI,
             EOSOperations.ACTION_GET_CODE,
             EOSOperations.ACTION_GET_TABLE_ROWS,
+            EOSOperations.ACTION_GET_RAM_PRICE,
     };
     private static final String[] Fabric_actions=new String[]{};
 
@@ -135,6 +136,7 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.ACTION_GET_ABI:
                     case EOSOperations.ACTION_GET_CODE:
                     case EOSOperations.ACTION_GET_TABLE_ROWS:
+                    case EOSOperations.ACTION_GET_RAM_PRICE:
                         startEOSGetInfo(mTargetActions[position]);
                         break;
                     default:

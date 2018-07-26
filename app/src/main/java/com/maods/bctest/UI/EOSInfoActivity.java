@@ -225,6 +225,9 @@ public class EOSInfoActivity extends Activity {
                     case EOSOperations.ACTION_GET_TABLE_ROWS:
                         mContent=EOSOperations.getTableRows(mAccountName,mContractName,mTableName);
                         break;
+                    case EOSOperations.ACTION_GET_RAM_PRICE:
+                        mContent=EOSOperations.getRamPrice();
+                        break;
                     default:
                         mContent=null;
                         break;
