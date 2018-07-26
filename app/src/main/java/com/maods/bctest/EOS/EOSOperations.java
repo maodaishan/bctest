@@ -23,11 +23,17 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_BLOCK="get_block";
     public static final String ACTION_GET_ABI="get_abi";
     public static final String ACTION_GET_CODE="get_code";
+    public static final String ACTION_GET_TABLE_ROWS="get_table_rows";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
     private static final String PARAM_CODE_AS_WASM="code_as_wasm";
     private static final String CODE_AS_WASM="false";
+    private static final String PARAM_SCOPE="scope";
+    private static final String PARAM_TABLE="table";
+    private static final String PARAM_CODE="code";
+    private static final String PARAM_JSON="json";
+    private static final String RESULT_AS_JSON="true";
     @Override
     public List<String> getServerNode(){
         return EOSUtils.getAvailableServers();
@@ -155,6 +161,35 @@ public class EOSOperations implements ChainCommonOperations {
             params.put(PARAM_CODE_AS_WASM,CODE_AS_WASM);
             String content=GlobalUtils.postToServer(url,params);
             Log.i(TAG,"geting Code from:"+url+"for account: "+accountName+",result:"+content);
+            if(!TextUtils.isEmpty(content)){
+                return content;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Can't be called in UI thread.
+     * Get Table rows
+     * ex. curl http://mainnet.eoscanada.com/v1/chain/get_table_rows -X POST -d {\"code\":\"eosio\",\"scope\":\"eosio\",\"table\":\"rammarket\",\"json\":\"true\"}
+     */
+    public static String getTableRows(String accountName,String contractName,String tableName){
+        List<String>servers=EOSUtils.getAvailableServers();
+        if(servers.size()==0){
+            return null;
+        }
+        for(int i=0;i<servers.size();i++){
+            String server=servers.get(i);
+            StringBuilder sb=new StringBuilder(server);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_GET_TABLE_ROWS);
+            String url=sb.toString();
+            HashMap<String,String> params=new HashMap<String,String>();
+            params.put(PARAM_SCOPE,accountName);
+            params.put(PARAM_CODE,contractName);
+            params.put(PARAM_TABLE,tableName);
+            params.put(PARAM_JSON,RESULT_AS_JSON);
+            String content=GlobalUtils.postToServer(url,params);
+            Log.i(TAG,"geting Table rows from:"+url+"for account: "+accountName+",contract:"+contractName+",table:"+tableName+",result:"+content);
             if(!TextUtils.isEmpty(content)){
                 return content;
             }

@@ -14,4 +14,7 @@
     <string name="get_abi_account_err">Please input correct account which you want query ABI.</string>
     <string name="copy_to_clipboard">Copy to Clip board</string>
     <string name="content_copyed_to_clipboard">Result had been copied to Clip board.</string>
+    <string name="input_contract_name">Input contract name</string>
+    <string name="input_table_name">Input table name</string>
+    <string name="get_table_row_input_err">Invalid input,all informations should be filled.</string>
 </resources>

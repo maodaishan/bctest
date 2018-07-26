@@ -35,10 +35,14 @@ public class EOSInfoActivity extends Activity {
     private boolean mNeedInput=false;
     private String mAccountName=null;
     private String mBlockNum=null;
+    private String mContractName=null;
+    private String mTableName=null;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
     private EditText mEdit1;
+    private EditText mEdit2;
+    private EditText mEdit3;
     private Button mBtn;
     private Button mBtnCopy;
 
@@ -50,6 +54,8 @@ public class EOSInfoActivity extends Activity {
         setContentView(R.layout.eos_info);
         mContentView=(TextView)findViewById(R.id.content);
         mEdit1=(EditText)findViewById(R.id.edit1);
+        mEdit2=(EditText)findViewById(R.id.edit2);
+        mEdit3=(EditText)findViewById(R.id.edit3);
         mBtn=(Button)findViewById(R.id.btn);
         mBtnCopy=(Button)findViewById(R.id.copy);
         mBtnCopy.setOnClickListener(new View.OnClickListener() {
@@ -68,7 +74,8 @@ public class EOSInfoActivity extends Activity {
         if(mAction.equals(EOSOperations.ACTION_GET_ACCOUNT)
                 ||mAction.equals(EOSOperations.ACTION_GET_BLOCK)
                 ||mAction.equals(EOSOperations.ACTION_GET_ABI)
-                ||mAction.equals(EOSOperations.ACTION_GET_CODE)){
+                ||mAction.equals(EOSOperations.ACTION_GET_CODE)
+                ||mAction.equals(EOSOperations.ACTION_GET_TABLE_ROWS)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -87,6 +94,13 @@ public class EOSInfoActivity extends Activity {
                 case EOSOperations.ACTION_GET_BLOCK:
                     mEdit1.setInputType(InputType.TYPE_CLASS_NUMBER);
                     hint=R.string.input_block_num;
+                    break;
+                case EOSOperations.ACTION_GET_TABLE_ROWS:
+                    hint=R.string.input_account_name;
+                    mEdit2.setVisibility(View.VISIBLE);
+                    mEdit2.setHint(R.string.input_contract_name);
+                    mEdit3.setVisibility(View.VISIBLE);
+                    mEdit3.setHint(R.string.input_table_name);
                     break;
                 default:
                     break;
@@ -146,6 +160,17 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
+            case EOSOperations.ACTION_GET_TABLE_ROWS:
+                mAccountName=mEdit1.getText().toString();
+                mContractName=mEdit2.getText().toString();
+                mTableName=mEdit3.getText().toString();
+                if(TextUtils.isEmpty(mAccountName)
+                        ||TextUtils.isEmpty(mContractName)
+                        ||TextUtils.isEmpty(mTableName)){
+                    showAlertMsg(R.string.get_table_row_input_err);
+                }else{
+                    startAction();
+                }
             default:
                 break;
         }
@@ -196,6 +221,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_GET_CODE:
                         mContent=EOSOperations.getCode(mAccountName);
+                        break;
+                    case EOSOperations.ACTION_GET_TABLE_ROWS:
+                        mContent=EOSOperations.getTableRows(mAccountName,mContractName,mTableName);
                         break;
                     default:
                         mContent=null;
