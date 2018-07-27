@@ -29,6 +29,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_CODE="get_code";
     public static final String ACTION_GET_TABLE_ROWS="get_table_rows";
     public static final String ACTION_GET_RAM_PRICE="get_ram_price";        //actually this's not HTTP API, just for easy use
+    public static final String ACTION_GET_PRODUCERS="get_producers";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
@@ -70,6 +71,31 @@ public class EOSOperations implements ChainCommonOperations {
         return null;
     }
 
+    /**
+     * Can't be called in UI thread
+     * may return null or empty String if failed
+     * curl http://mainnet.eoscanada.com/v1/chain/get_producers -X POST -d {\"json\":\"true\"}
+     */
+    public static String getProducers(){
+        List<String>servers=EOSUtils.getAvailableServers();
+        if(servers.size()==0){
+            return null;
+        }
+        for(int i=0;i<servers.size();i++){
+            String server=servers.get(i);
+            StringBuilder sb=new StringBuilder(server);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_GET_PRODUCERS);
+            String url=sb.toString();
+            HashMap<String,String> params=new HashMap<String,String>();
+            params.put(PARAM_JSON,RESULT_AS_JSON);
+            String content=GlobalUtils.postToServer(url,params);
+            Log.i(TAG,"geting getProducers from:"+url+",result:"+content);
+            if(!TextUtils.isEmpty(content)){
+                return content;
+            }
+        }
+        return null;
+    }
     /**
      * Can't be called in UI thread.
      * Get Account info.
@@ -216,7 +242,7 @@ public class EOSOperations implements ChainCommonOperations {
      */
     public static String getRamPrice(){
         StringBuilder result=new StringBuilder();
-        String jsonStr=getTableRows("eosio","eosio","rammarket");
+        String jsonStr=getTableRows(ACCOUNT_EOSIO,ACCOUNT_EOSIO,TABLE_RAMMARKET);
         if(TextUtils.isEmpty(jsonStr)){
             return null;
         }

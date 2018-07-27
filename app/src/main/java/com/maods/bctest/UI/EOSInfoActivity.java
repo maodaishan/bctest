@@ -209,6 +209,9 @@ public class EOSInfoActivity extends Activity {
                     case EOSOperations.ACTION_GET_INFO:
                         mContent = EOSOperations.getInfo();
                         break;
+                    case EOSOperations.ACTION_GET_PRODUCERS:
+                        mContent=EOSOperations.getProducers();
+                        break;
                     case EOSOperations.ACTION_GET_ACCOUNT:
                         mContent=EOSOperations.getAccount(mAccountName);
                         //Log.i(TAG,"mContent:"+mContent);

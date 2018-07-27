@@ -32,6 +32,7 @@ public class ChainHomeActivity extends Activity {
     private static final String[] ETH_actions=new String[]{};
     private static final String[] EOS_actions=new String[]{
             EOSOperations.ACTION_GET_INFO,
+            EOSOperations.ACTION_GET_PRODUCERS,
             EOSOperations.ACTION_GET_ACCOUNT,
             EOSOperations.ACTION_GET_BLOCK,
             EOSOperations.ACTION_GET_ABI,
@@ -131,6 +132,7 @@ public class ChainHomeActivity extends Activity {
             case GlobalConstants.EOS:{
                 switch(mTargetActions[position]){
                     case EOSOperations.ACTION_GET_INFO:
+                    case EOSOperations.ACTION_GET_PRODUCERS:
                     case EOSOperations.ACTION_GET_ACCOUNT:
                     case EOSOperations.ACTION_GET_BLOCK:
                     case EOSOperations.ACTION_GET_ABI:
