@@ -200,6 +200,7 @@ public class EOSInfoActivity extends Activity {
         final AlertDialog.Builder builder=new AlertDialog.Builder(this);
         builder.setMessage(R.string.processing);
         mAlertDialog=builder.create();
+        mAlertDialog.setCanceledOnTouchOutside(false);
         mAlertDialog.show();
 
         Thread t=new Thread(new Runnable() {
@@ -211,6 +212,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_GET_PRODUCERS:
                         mContent=EOSOperations.getProducers();
+                        break;
+                    case EOSOperations.ACTION_GET_AVAILABLE_BP_API_SERVER:
+                        mContent=EOSOperations.getAvailableAPIServer();
                         break;
                     case EOSOperations.ACTION_GET_ACCOUNT:
                         mContent=EOSOperations.getAccount(mAccountName);

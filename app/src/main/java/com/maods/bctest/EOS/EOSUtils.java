@@ -51,16 +51,20 @@ public class EOSUtils {
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
+                HttpURLConnection httpURLConnection=null;
                 try {
-                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                    httpURLConnection = (HttpURLConnection) url.openConnection();
                     if(httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        httpURLConnection.disconnect();
                         sServerNodes.add(target);
                     } else {
                         Log.d("TAG httpUrlConnection : ",httpURLConnection.getResponseCode() +"");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                }finally {
+                    if(httpURLConnection!=null) {
+                        httpURLConnection.disconnect();
+                    }
                 }
             }
             sServerTested=true;

@@ -12,6 +12,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,6 +35,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_TABLE_ROWS="get_table_rows";
     public static final String ACTION_GET_RAM_PRICE="get_ram_price";        //actually this's not HTTP API, just for easy use
     public static final String ACTION_GET_PRODUCERS="get_producers";
+    public static final String ACTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
@@ -276,4 +282,97 @@ public class EOSOperations implements ChainCommonOperations {
         return result.toString();
     }
 
+    /**
+     * Can't be called in UI thread
+     * get available bp api server, results will be separated by ","
+     * 1st: curl http://peer1.eoshuobipool.com:8181/v1/chain/get_producers -X POST -d {\"json\":\"true\"}, get list of bp
+     * for bp url, add "bp.json",POST to it, get result.
+     * The result is json containing the detail info, extract "api_endpoint" from it.
+     * TODO: we need a seed server, how to get it? may need centralized way now.
+     */
+    public static String getAvailableAPIServer(){
+        StringBuilder result=new StringBuilder();
+        List<String>servers=EOSUtils.getAvailableServers();
+        if(servers.size()==0){
+            return null;
+        }
+        for(int i=0;i<servers.size();i++){
+            String server=servers.get(i);
+            StringBuilder sb=new StringBuilder(server);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_GET_PRODUCERS);
+            String url=sb.toString();
+            HashMap<String,String> params=new HashMap<String,String>();
+            params.put(PARAM_JSON,RESULT_AS_JSON);
+            String content=GlobalUtils.postToServer(url,params);
+            Log.i(TAG,"geting producers from:"+url+",result:"+content);
+            if(TextUtils.isEmpty(content)){
+                return null;
+            }
+            try {
+                //get url for each BP
+                ArrayList<String>bpUrl=new ArrayList<String>();
+                JSONObject rawBP=new JSONObject(content);
+                JSONArray bps=rawBP.getJSONArray("rows");
+                int size=bps.length();
+                for(int bpIndex=0;bpIndex<size;bpIndex++){
+                    JSONObject bp=(JSONObject)bps.getJSONObject(bpIndex);
+                    bpUrl.add(bp.getString("url"));
+                }
+                if(bpUrl.size()==0){
+                    return null;
+                }
+                //get api server address from each bp,and test them, for each available, add to the result.
+                for(String bp:bpUrl){
+                    String bpInfo=bp+"/bp.json";
+                    String infoStr=GlobalUtils.getContentFromUrl(bpInfo);
+                    Log.i(TAG,"json from "+bp+" is:"+infoStr );
+                    if(TextUtils.isEmpty(infoStr)){
+                        continue;
+                    }
+                    JSONObject infoJson=new JSONObject(infoStr);
+                    JSONArray nodes=infoJson.getJSONArray("nodes");
+                    if(nodes==null){
+                        continue;
+                    }
+                    JSONObject node=nodes.getJSONObject(0);
+                    String apiUrl=node.getString("api_endpoint");
+                    if(TextUtils.isEmpty(apiUrl)){
+                        continue;
+                    }
+                    if(testAPIServerAvailable(apiUrl)){
+                        result.append(apiUrl+",");
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return result.toString();
+        }
+        return null;
+    }
+
+    private static boolean testAPIServerAvailable(String server){
+        URL url=null;
+        try {
+            StringBuilder sb=new StringBuilder(server);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+EOSOperations.ACTION_GET_INFO);
+            url=new URL(sb.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        HttpURLConnection httpURLConnection=null;
+        try {
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            if(httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            httpURLConnection.disconnect();
+        }
+        return false;
+    }
 }
