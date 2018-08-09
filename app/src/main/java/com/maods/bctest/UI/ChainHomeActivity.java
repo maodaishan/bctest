@@ -64,7 +64,11 @@ public class ChainHomeActivity extends Activity {
         mListView=(ListView)findViewById(R.id.list);
 
         Intent intent=getIntent();
-        mTarget=intent.getStringExtra(GlobalConstants.EXTRA_KEY_CHAIN);
+        if(intent.hasExtra(GlobalConstants.EXTRA_KEY_CHAIN)) {
+            mTarget = intent.getStringExtra(GlobalConstants.EXTRA_KEY_CHAIN);
+        }else {
+            mTarget = GlobalConstants.EOS;
+        }
         switch(mTarget) {
             case GlobalConstants.BTC:
                 mTargetActions = BTC_actions;
