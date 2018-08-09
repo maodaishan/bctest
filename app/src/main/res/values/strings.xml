@@ -17,4 +17,7 @@
     <string name="input_contract_name">Input contract name</string>
     <string name="input_table_name">Input table name</string>
     <string name="get_table_row_input_err">Invalid input,all informations should be filled.</string>
+    <string name="input_wallet_name">Input wallet name</string>
+    <string name="wallet_pswd_notify">Here is password for this wallet,please remember it,in other tests we may use this password to unlock the wallet to signature the transaction.:\n%1$s</string>
+    <string name="wallet_create_failed">Wallet create failed.</string>
 </resources>

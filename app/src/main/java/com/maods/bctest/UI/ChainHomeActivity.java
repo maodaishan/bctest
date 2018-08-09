@@ -1,8 +1,11 @@
 package com.maods.bctest.UI;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,6 +29,7 @@ import java.util.List;
 
 public class ChainHomeActivity extends Activity {
     private static final String TAG="ChainHomeActivity";
+    private static final int REQUEST_WRITE_EXTERNAL_STORAGE=1;
 
     private static final String GET_CHAIN_INFO="get_chain_info";
     private static final String[] BTC_actions=new String[]{};
@@ -40,6 +44,7 @@ public class ChainHomeActivity extends Activity {
             EOSOperations.ACTION_GET_CODE,
             EOSOperations.ACTION_GET_TABLE_ROWS,
             EOSOperations.ACTION_GET_RAM_PRICE,
+            EOSOperations.ACTION_CREATE_WALLET,
     };
     private static final String[] Fabric_actions=new String[]{};
 
@@ -117,6 +122,18 @@ public class ChainHomeActivity extends Activity {
             });
             t.start();
         }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE);
+            return;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults){
+        return;
     }
 
     private void updateInfo(List<String>servers){
@@ -145,6 +162,7 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.ACTION_GET_CODE:
                     case EOSOperations.ACTION_GET_TABLE_ROWS:
                     case EOSOperations.ACTION_GET_RAM_PRICE:
+                    case EOSOperations.ACTION_CREATE_WALLET:
                         startEOSGetInfo(mTargetActions[position]);
                         break;
                     default:

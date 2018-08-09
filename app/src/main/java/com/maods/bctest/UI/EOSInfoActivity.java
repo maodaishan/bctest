@@ -1,12 +1,15 @@
 package com.maods.bctest.UI;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,6 +40,7 @@ public class EOSInfoActivity extends Activity {
     private String mBlockNum=null;
     private String mContractName=null;
     private String mTableName=null;
+    private String mWalletName=null;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
@@ -49,6 +53,7 @@ public class EOSInfoActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
+
         mAction=getIntent().getStringExtra(GlobalConstants.EXTRA_KEY_ACTION);
 
         setContentView(R.layout.eos_info);
@@ -75,7 +80,8 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_GET_BLOCK)
                 ||mAction.equals(EOSOperations.ACTION_GET_ABI)
                 ||mAction.equals(EOSOperations.ACTION_GET_CODE)
-                ||mAction.equals(EOSOperations.ACTION_GET_TABLE_ROWS)){
+                ||mAction.equals(EOSOperations.ACTION_GET_TABLE_ROWS)
+                ||mAction.equals(EOSOperations.ACTION_CREATE_WALLET)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -101,6 +107,9 @@ public class EOSInfoActivity extends Activity {
                     mEdit2.setHint(R.string.input_contract_name);
                     mEdit3.setVisibility(View.VISIBLE);
                     mEdit3.setHint(R.string.input_table_name);
+                    break;
+                case EOSOperations.ACTION_CREATE_WALLET:
+                    hint=R.string.input_wallet_name;
                     break;
                 default:
                     break;
@@ -171,6 +180,13 @@ public class EOSInfoActivity extends Activity {
                 }else{
                     startAction();
                 }
+                break;
+            case EOSOperations.ACTION_CREATE_WALLET:
+                mWalletName=mEdit1.getText().toString();
+                if(!TextUtils.isEmpty(mWalletName)) {
+                    startAction();
+                }
+                break;
             default:
                 break;
         }
@@ -234,6 +250,14 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_GET_RAM_PRICE:
                         mContent=EOSOperations.getRamPrice();
+                        break;
+                    case EOSOperations.ACTION_CREATE_WALLET:
+                        String pswd=EOSOperations.createWallet(EOSInfoActivity.this,mWalletName);
+                        if(!TextUtils.isEmpty(pswd)){
+                            mContent= String.format(EOSInfoActivity.this.getResources().getString(R.string.wallet_pswd_notify),pswd);
+                        }else{
+                            mContent= EOSInfoActivity.this.getString(R.string.wallet_create_failed);
+                        }
                         break;
                     default:
                         mContent=null;

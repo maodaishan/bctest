@@ -1,17 +1,20 @@
 package com.maods.bctest.EOS;
 
 import android.app.Notification;
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.maods.bctest.ChainCommonOperations;
 import com.maods.bctest.GlobalUtils;
+import com.maods.bctest.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -19,6 +22,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import io.plactal.eoscommander.data.wallet.EosWalletManager;
 
 /**
  * Created by MAODS on 2018/7/19.
@@ -36,6 +41,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_RAM_PRICE="get_ram_price";        //actually this's not HTTP API, just for easy use
     public static final String ACTION_GET_PRODUCERS="get_producers";
     public static final String ACTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
+    public static final String ACTION_CREATE_WALLET="create_wallet";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
@@ -48,6 +54,8 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String RESULT_AS_JSON="true";
     private static final String ACCOUNT_EOSIO="eosio";
     private static final String TABLE_RAMMARKET="rammarket";
+
+    private static final String PREF_WALLET_DIR_NAME= "wallets";
     @Override
     public List<String> getServerNode(){
         return EOSUtils.getAvailableServers();
@@ -375,4 +383,23 @@ public class EOSOperations implements ChainCommonOperations {
         }
         return false;
     }
+
+    public static String createWallet(Context context,String walletName){
+        EosWalletManager manager=new EosWalletManager();
+        File dir=new File( context.getFilesDir(), PREF_WALLET_DIR_NAME);
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        manager.setDir(dir);
+        String pswd=null;
+        try {
+            pswd= manager.create(walletName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pswd;
+    }
+
+
+
 }
