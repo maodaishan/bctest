@@ -33,7 +33,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.plactal.eoscommander.di.ApplicationContext;
+
 import io.plactal.eoscommander.util.Consts;
 import io.plactal.eoscommander.util.RefValue;
 import io.plactal.eoscommander.util.StringUtils;
@@ -69,7 +69,7 @@ public class PreferencesHelper {
     private Boolean mSkipSigning;
 
     @Inject
-    public PreferencesHelper(@ApplicationContext Context context ) {
+    public PreferencesHelper( Context context ) {
         mPrefs = context.getSharedPreferences( PREF_FILE_NAME, Context.MODE_PRIVATE);
 
         mWalletDirFile = new File( context.getFilesDir(), PREF_WALLET_DIR_NAME);
