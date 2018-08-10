@@ -44,7 +44,8 @@ public class ChainHomeActivity extends Activity {
             EOSOperations.ACTION_GET_CODE,
             EOSOperations.ACTION_GET_TABLE_ROWS,
             EOSOperations.ACTION_GET_RAM_PRICE,
-            EOSOperations.ACTION_CREATE_WALLET,
+            //EOSOperations.ACTION_CREATE_WALLET,
+            EOSOperations.ACTION_LIST_WALLETS
     };
     private static final String[] Fabric_actions=new String[]{};
 
@@ -165,6 +166,8 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.ACTION_CREATE_WALLET:
                         startEOSGetInfo(mTargetActions[position]);
                         break;
+                    case EOSOperations.ACTION_LIST_WALLETS:
+                        startEOSList(mTargetActions[position]);
                     default:
                         break;
                 }
@@ -177,6 +180,13 @@ public class ChainHomeActivity extends Activity {
     private void startEOSGetInfo(String action){
         Intent intent=new Intent();
         intent.setClass(this,EOSInfoActivity.class);
+        intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,action);
+        startActivity(intent);
+    }
+
+    private void startEOSList(String action){
+        Intent intent=new Intent();
+        intent.setClass(this,EOSListActivity.class);
         intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,action);
         startActivity(intent);
     }

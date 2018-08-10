@@ -30,7 +30,12 @@
         <activity android:name=".UI.EOSInfoActivity"
             android:label="Get all kinds of Info"
             android:theme="@style/AppTheme.NoActionBar"/>
-
+        <activity android:name=".UI.EOSListActivity"
+            android:label="List"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".UI.EOSWalletManagerActivity"
+            android:label="Manage wallet"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

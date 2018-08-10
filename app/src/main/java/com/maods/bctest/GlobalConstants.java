@@ -13,7 +13,6 @@ public class GlobalConstants {
     //Name for extras passed in intent.
     public static final String EXTRA_KEY_CHAIN="chain";
     public static final String EXTRA_KEY_ACTION="action";
+    public static final String EXTRA_KEY_NAME="name";
 
-    //possible values passed in intent.
-    public static final String EXTRA_VALUE_EOS_GET_CHAIN_INFO="get_chain_info";
 }

@@ -23,6 +23,8 @@
  */
 package io.plactal.eoscommander.data.wallet;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,17 +46,41 @@ import io.plactal.eoscommander.util.Consts;
 public class EosWalletManager {
     private static final String EOS_WALLET_PASSWD_PREFIX = "PW";
     private static final String EOS_WALLET_FILE_EXT = ".wallet";
+    private static final String PREF_WALLET_DIR_NAME= "wallets";
 
     private File mDir;
     private HashMap<String, EosWallet> mWallets;
     private boolean mDefaultWalletExists;
+    private static EosWalletManager mManager=null;
 
-    public EosWalletManager() {
+    public static EosWalletManager getInstance(Context context){
+        if(mManager==null){
+            mManager=new EosWalletManager(context);
+        }
+        return mManager;
+    }
+
+    private EosWalletManager(Context context) {
         mWallets = new HashMap<>();
+        /*MaoDaishan added begin. for easy use.*/
+        File dir=new File( context.getFilesDir(), PREF_WALLET_DIR_NAME);
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        setDir(dir);
+        File[] existedWallets=dir.listFiles();
+        for(File wallet:existedWallets){
+            open(wallet.getName());
+        }
+        /*Mao Daishan added end*/
     }
 
     public void setDir(File dir ) {
         mDir = dir;
+    }
+
+    public String getDir(){
+        return mDir.getAbsolutePath();
     }
 
     public int openExistingsInDir(){

@@ -20,4 +20,9 @@
     <string name="input_wallet_name">Input wallet name</string>
     <string name="wallet_pswd_notify">Here is password for this wallet,please remember it,in other tests we may use this password to unlock the wallet to signature the transaction.:\n%1$s</string>
     <string name="wallet_create_failed">Wallet create failed.</string>
+    <string name="wallet_empty">No wallet now, you need to create a wallet first.</string>
+    <string name="wallet_list_info">wallet with "*" is unlocked.</string>
+    <string name="list_wallets">List wallets</string>
+    <string name="input_pswd_to_unlock_wallet">Input password to unlock this wallet.</string>
+    <string name="create_wallet">Create wallet</string>
 </resources>

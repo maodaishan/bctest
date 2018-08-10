@@ -42,6 +42,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_PRODUCERS="get_producers";
     public static final String ACTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
     public static final String ACTION_CREATE_WALLET="create_wallet";
+    public static final String ACTION_LIST_WALLETS="list_wallets";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
@@ -55,7 +56,6 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String ACCOUNT_EOSIO="eosio";
     private static final String TABLE_RAMMARKET="rammarket";
 
-    private static final String PREF_WALLET_DIR_NAME= "wallets";
     @Override
     public List<String> getServerNode(){
         return EOSUtils.getAvailableServers();
@@ -385,12 +385,7 @@ public class EOSOperations implements ChainCommonOperations {
     }
 
     public static String createWallet(Context context,String walletName){
-        EosWalletManager manager=new EosWalletManager();
-        File dir=new File( context.getFilesDir(), PREF_WALLET_DIR_NAME);
-        if(!dir.exists()){
-            dir.mkdirs();
-        }
-        manager.setDir(dir);
+        EosWalletManager manager= EosWalletManager.getInstance(context);
         String pswd=null;
         try {
             pswd= manager.create(walletName);
