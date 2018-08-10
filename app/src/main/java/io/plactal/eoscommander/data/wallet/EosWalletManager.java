@@ -376,4 +376,9 @@ public class EosWalletManager {
 
         return stxn;
     }
+
+    //Mao Daishan add begin
+    public EosWallet getWallet(String name){
+        return mWallets.get(name);
+    }
 }

@@ -25,4 +25,8 @@
     <string name="list_wallets">List wallets</string>
     <string name="input_pswd_to_unlock_wallet">Input password to unlock this wallet.</string>
     <string name="create_wallet">Create wallet</string>
+    <string name="imported_keys">Here are the imported keys:</string>
+    <string name="generated_keys">Private Key:%1$s\nPublic Key:%2$s</string>
+    <string name="import_key">Import</string>
+    <string name="create_key">Create and import keys</string>
 </resources>
