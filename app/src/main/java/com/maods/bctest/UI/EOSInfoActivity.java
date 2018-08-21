@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,12 +42,17 @@ public class EOSInfoActivity extends Activity {
     private String mContractName=null;
     private String mTableName=null;
     private String mWalletName=null;
+    private String mArgs=null;
+    private String mAccount2Name=null;
+    private String mAmount=null;
+    private String mMemo=null;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
     private EditText mEdit1;
     private EditText mEdit2;
     private EditText mEdit3;
+    private EditText mEdit4;
     private Button mBtn;
     private Button mBtnCopy;
 
@@ -61,6 +67,7 @@ public class EOSInfoActivity extends Activity {
         mEdit1=(EditText)findViewById(R.id.edit1);
         mEdit2=(EditText)findViewById(R.id.edit2);
         mEdit3=(EditText)findViewById(R.id.edit3);
+        mEdit4=(EditText)findViewById(R.id.edit4);
         mBtn=(Button)findViewById(R.id.btn);
         mBtnCopy=(Button)findViewById(R.id.copy);
         mBtnCopy.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +88,9 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_GET_ABI)
                 ||mAction.equals(EOSOperations.ACTION_GET_CODE)
                 ||mAction.equals(EOSOperations.ACTION_GET_TABLE_ROWS)
-                ||mAction.equals(EOSOperations.ACTION_CREATE_WALLET)){
+                ||mAction.equals(EOSOperations.ACTION_CREATE_WALLET)
+                ||mAction.equals(EOSOperations.ACTION_JSON_TO_BIN)
+                ||mAction.equals(EOSOperations.ACTION_TRANSFER)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -110,6 +119,24 @@ public class EOSInfoActivity extends Activity {
                     break;
                 case EOSOperations.ACTION_CREATE_WALLET:
                     hint=R.string.input_wallet_name;
+                    break;
+                case EOSOperations.ACTION_JSON_TO_BIN:
+                    hint=R.string.input_account_name;
+                    mEdit2.setHint(R.string.input_contract_name);
+                    mEdit2.setVisibility(View.VISIBLE);
+                    mEdit3.setHint(R.string.input_args);
+                    mEdit3.setVisibility(View.VISIBLE);
+                    break;
+                case EOSOperations.ACTION_TRANSFER:
+                    hint=R.string.from;
+                    mEdit1.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+                    mEdit2.setHint(R.string.to);
+                    mEdit2.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+                    mEdit2.setVisibility(View.VISIBLE);
+                    mEdit3.setHint(R.string.amount);
+                    mEdit3.setVisibility(View.VISIBLE);
+                    mEdit4.setHint(R.string.memo);
+                    mEdit4.setVisibility(View.VISIBLE);
                     break;
                 default:
                     break;
@@ -187,6 +214,23 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
+            case EOSOperations.ACTION_JSON_TO_BIN:
+                mAccountName=mEdit1.getText().toString();
+                mContractName=mEdit2.getText().toString();
+                mArgs=mEdit3.getText().toString();
+                startAction();
+                break;
+            case EOSOperations.ACTION_TRANSFER:
+                mAccountName=mEdit1.getText().toString();
+                mAccount2Name=mEdit2.getText().toString();
+                mAmount=mEdit3.getText().toString()+" EOS";
+                mMemo=mEdit4.getText().toString();
+                if(!isAccountNameLeagle(mAccountName) || !isAccountNameLeagle(mAccount2Name)){
+                    showAlertMsg(R.string.eos_account_length_err);
+                }else{
+                    startAction();
+                }
+                break;
             default:
                 break;
         }
@@ -258,6 +302,12 @@ public class EOSInfoActivity extends Activity {
                         }else{
                             mContent= EOSInfoActivity.this.getString(R.string.wallet_create_failed);
                         }
+                        break;
+                    case EOSOperations.ACTION_JSON_TO_BIN:
+                        mContent=EOSOperations.jsonToBin(true,mAccountName,mContractName,mArgs);
+                        break;
+                    case EOSOperations.ACTION_TRANSFER:
+                        mContent=EOSOperations.transfer(EOSInfoActivity.this,mAccountName,mAccount2Name,mAmount,mMemo);
                         break;
                     default:
                         mContent=null;

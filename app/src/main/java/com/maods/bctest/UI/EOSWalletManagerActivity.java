@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.maods.bctest.GlobalConstants;
 import com.maods.bctest.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +25,9 @@ import java.util.Set;
 
 import io.plactal.eoscommander.crypto.ec.EosPrivateKey;
 import io.plactal.eoscommander.crypto.ec.EosPublicKey;
+import io.plactal.eoscommander.data.remote.model.types.EosByteReader;
 import io.plactal.eoscommander.data.remote.model.types.EosByteWriter;
+import io.plactal.eoscommander.data.remote.model.types.EosType;
 import io.plactal.eoscommander.data.wallet.EosWallet;
 import io.plactal.eoscommander.data.wallet.EosWalletManager;
 
@@ -42,6 +46,7 @@ public class EOSWalletManagerActivity extends Activity {
     private TextView mInfoView;
     private ListView mListView;
     private Button mBtnCreatePrivate;
+    private Button mBtnImport;
     private SimpleAdapter mAdapter;
 
     private String mName;
@@ -64,10 +69,18 @@ public class EOSWalletManagerActivity extends Activity {
                 createPrivateKeyAndImport();
             }
         });
+        mBtnImport=(Button)findViewById(R.id.import_private);
+        mBtnImport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showImportDialog();
+            }
+        });
 
         mName= getIntent().getStringExtra(GlobalConstants.EXTRA_KEY_NAME);
         mTitleView.setText(mName);
 
+        mWallet = EosWalletManager.getInstance(this).getWallet(mName);
         refreshKeyList();
     }
 
@@ -84,6 +97,7 @@ public class EOSWalletManagerActivity extends Activity {
                 mWallet.importKey(priv);
                 EosByteWriter writer = new EosByteWriter(256) ;
                 mWallet.pack(writer);
+                mWallet.saveFile(mWallet.getWalletFilePath());
                 dialog.dismiss();
                 refreshKeyList();
             }
@@ -98,8 +112,35 @@ public class EOSWalletManagerActivity extends Activity {
 
     }
 
+    private void showImportDialog(){
+        final EditText inputServer = new EditText(this);
+        inputServer.setFocusable(true);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.input_private_for_import))
+                .setView(inputServer)
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.setPositiveButton(android.R.string.ok,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String priv = inputServer.getText().toString();
+                        mWallet.importKey(priv);
+                        EosByteWriter writer = new EosByteWriter(256) ;
+                        mWallet.pack(writer);
+                        mWallet.saveFile(mWallet.getWalletFilePath());
+                        refreshKeyList();
+                    }
+                });
+        builder.show();
+    }
+
     private void refreshKeyList(){
-        mWallet = EosWalletManager.getInstance(this).getWallet(mName);
         mKeys=mWallet.listKeys();
         if(mKeys.size()>0){
             mListItems.clear();

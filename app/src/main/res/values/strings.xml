@@ -29,4 +29,10 @@
     <string name="generated_keys">Private Key:%1$s\nPublic Key:%2$s</string>
     <string name="import_key">Import</string>
     <string name="create_key">Create and import keys</string>
+    <string name="input_args">Input arguments</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="amount">Amount</string>
+    <string name="memo">Memo</string>
+    <string name="input_private_for_import">Input the private key you wish to import.</string>
 </resources>

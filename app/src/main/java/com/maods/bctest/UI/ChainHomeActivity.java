@@ -45,7 +45,9 @@ public class ChainHomeActivity extends Activity {
             EOSOperations.ACTION_GET_TABLE_ROWS,
             EOSOperations.ACTION_GET_RAM_PRICE,
             //EOSOperations.ACTION_CREATE_WALLET,
-            EOSOperations.ACTION_LIST_WALLETS
+            EOSOperations.ACTION_LIST_WALLETS,
+            EOSOperations.ACTION_JSON_TO_BIN,
+            EOSOperations.ACTION_TRANSFER
     };
     private static final String[] Fabric_actions=new String[]{};
 
@@ -164,6 +166,8 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.ACTION_GET_TABLE_ROWS:
                     case EOSOperations.ACTION_GET_RAM_PRICE:
                     case EOSOperations.ACTION_CREATE_WALLET:
+                    case EOSOperations.ACTION_JSON_TO_BIN:
+                    case EOSOperations.ACTION_TRANSFER:
                         startEOSGetInfo(mTargetActions[position]);
                         break;
                     case EOSOperations.ACTION_LIST_WALLETS:

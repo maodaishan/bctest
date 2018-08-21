@@ -30,7 +30,11 @@
                 android:id="@+id/edit3"
                 android:layout_width="@dimen/editor_length_short"
                 android:layout_height="wrap_content"
-                android:maxLength="12"
+                android:visibility="gone"/>
+            <EditText
+                android:id="@+id/edit4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:visibility="gone"/>
             <Button
                 android:id="@+id/btn"

@@ -104,4 +104,12 @@ public class TransactionHeader implements EosType.Packer {
         writer.putVariableUInt( max_cpu_usage_ms);
         writer.putVariableUInt( delay_sec);
     }
+
+    //Mao Daishan added for easy use.
+    public void setRefBlockNum(int refBlockNum){
+        ref_block_num=refBlockNum;
+    }
+    public void setRefBlockPrefix(long refBlockPrefix){
+        ref_block_prefix=refBlockPrefix;
+    }
 }

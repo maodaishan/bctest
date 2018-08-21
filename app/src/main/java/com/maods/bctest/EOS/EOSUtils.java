@@ -20,6 +20,7 @@ public class EOSUtils {
             "http://mainnet.eoscanada.com",
             "http://mainnet.eoscalgary.io",
             "http://mainnet.genereos.io",
+            "http://api-mainnet.starteos.io"
     };
     public static final String VERSION = "v1";
     public static final String API_CHAIN = "chain";
@@ -70,5 +71,11 @@ public class EOSUtils {
             sServerTested=true;
         }
         return sServerNodes;
+    }
+
+    public static List<String> getTestNetServers(){
+        ArrayList<String>result=new ArrayList<String>();
+        result.add("https://jungle.eosio.cr:443");
+        return result;
     }
 }

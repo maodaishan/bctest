@@ -16,6 +16,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
 
+import retrofit2.http.HTTP;
+
 /**
  * Created by MAODS on 2018/7/20.
  */
@@ -103,7 +105,8 @@ public class GlobalUtils {
             outputStream.write(data);
 
             int response = httpURLConnection.getResponseCode();            //获得服务器的响应码
-            if(response == HttpURLConnection.HTTP_OK) {
+            if(response == HttpURLConnection.HTTP_OK
+                    || response== HttpURLConnection.HTTP_ACCEPTED) {
                 inptStream = new InputStreamReader(httpURLConnection.getInputStream());
                 BufferedReader reader=new BufferedReader(inptStream);
                 String line;
@@ -113,16 +116,19 @@ public class GlobalUtils {
             }else{
                 StringBuilder sbErr=new StringBuilder();
                 InputStream errIs=httpURLConnection.getErrorStream();
-                int len;
-                byte[] buf=new byte[512];
-                while( (len=errIs.read(buf))>0){
-                    sbErr.append(new String(buf));
-                    for(int i=0;i<buf.length;i++){
-                        buf[i]=0;
+                Log.i(TAG,"errIs:"+errIs);
+                if(errIs!=null){
+                    int len;
+                    byte[] buf=new byte[512];
+                    while( (len=errIs.read(buf))>0){
+                        sbErr.append(new String(buf));
+                        for(int i=0;i<buf.length;i++){
+                            buf[i]=0;
+                        }
                     }
+                    errIs.close();
+                    Log.i(TAG,"error rsp:"+sbErr.toString());
                 }
-                errIs.close();
-                Log.i(TAG,"error rsp:"+sbErr.toString());
             }
         } catch (IOException e) {
             //e.printStackTrace();
@@ -150,12 +156,20 @@ public class GlobalUtils {
         try {
             stringBuffer.append("{");
             for(Map.Entry<String, String> entry : params.entrySet()) {
-                stringBuffer.append("\""+entry.getKey()+"\"")
-                        .append(":")
-                        .append("\""+entry.getValue()+"\"")
-                        .append(",");
+                String key=entry.getKey();
+                String value=entry.getValue();
+                stringBuffer.append("\""+key+"\"")
+                        .append(":");
+                if(!value.startsWith("{") && !value.startsWith("[")){
+                    stringBuffer.append("\"");
+                }
+                stringBuffer.append(value);
+                if(!value.startsWith("{") && !value.startsWith("[")){
+                    stringBuffer.append("\"");
+                }
+                stringBuffer.append(",");
             }
-            //delete last "&"
+            //delete last ","
             if(stringBuffer.length()>0) {
                 stringBuffer.deleteCharAt(stringBuffer.length() - 1);
             }

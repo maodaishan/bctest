@@ -31,6 +31,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/create_key"/>
+        <Button
+            android:id="@+id/import_private"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/import_key"/>
     </LinearLayout>
 </FrameLayout>
 
