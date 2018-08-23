@@ -67,6 +67,8 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_PUSH_TRANSACTION="push_transaction";
     public static final String ACTION_BUYRAM="buyrambytes";
     public static final String ACTION_SELLRAM="sellram";
+    public static final String ACTION_DELEGATEBW="delegatebw";
+    public static final String ACTION_UNDELEGATEBW="undelegatebw";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_ACCOUNT="account";
@@ -511,12 +513,6 @@ public class EOSOperations implements ChainCommonOperations {
             if(!TextUtils.isEmpty(content)){
                 return content;
             }
-            try {
-                JSONObject result=new JSONObject(content);
-                return result.getString("binargs");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
         }
         return null;
     }
@@ -535,7 +531,14 @@ public class EOSOperations implements ChainCommonOperations {
         sb.append("{");
         Set<Map.Entry<String,String>> argsEntry=args.entrySet();
         for(Map.Entry<String,String> entry:argsEntry){
-            sb.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\",");
+            String key=entry.getKey();
+            String value=entry.getValue();
+            sb.append("\""+key+"\":");
+            if(value.equalsIgnoreCase("false") || value.equalsIgnoreCase("true")){
+                sb.append(value);
+            }else{
+                sb.append("\""+value+"\",");
+            }
         }
         if(args.size()>0){
             sb.delete(sb.length()-1,sb.length());
@@ -801,6 +804,65 @@ public class EOSOperations implements ChainCommonOperations {
         actions.add(action);
         String result=pushTransaction(context,true,actions,null);
         Log.i(TAG,"result of sellram,account:"+account+",bytes:"+bytes+",result:"+result);
+        return result;
+    }
+
+    public static String delegatebw(Context context,String payer,String receiver,int cpu,int net){
+        HashMap<String,String>params=new HashMap<String,String>();
+        params.put(PARAM_FROM,payer);
+        params.put(PARAM_RECEIVER,receiver);
+        params.put("transfer","false");
+        params.put("stake_cpu_quantity",String.valueOf(cpu)+".0000 EOS");
+        params.put("stake_net_quantity",String.valueOf(net)+".0000 EOS");
+        String bin=jsonToBin(true,EOSIO,ACTION_DELEGATEBW,params);
+        if(TextUtils.isEmpty(bin)){
+            return null;
+        }
+        try {
+            JSONObject binJson=new JSONObject(bin);
+            bin=binJson.getString("binargs");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Map<String,String>>auths=new ArrayList<Map<String,String>>();
+        HashMap<String,String>auth=new HashMap<String,String>();
+        auth.put(ACTOR,payer);
+        auth.put(PERMISSION,ACTIVE);
+        auths.add(auth);
+        Action action=new Action(EOSIO,ACTION_DELEGATEBW,bin,auths);
+        ArrayList<Action> actions=new ArrayList<Action>();
+        actions.add(action);
+        String result=pushTransaction(context,true,actions,null);
+        Log.i(TAG,"result of delegatebw,payer:"+payer+"receiver:"+receiver+"cpu:"+cpu+",net:"+net+",result:"+result);
+        return result;
+    }
+
+    public static String undelegatebw(Context context,String payer,String receiver,int cpu,int net){
+        HashMap<String,String>params=new HashMap<String,String>();
+        params.put(PARAM_FROM,payer);
+        params.put(PARAM_RECEIVER,receiver);
+        params.put("unstake_cpu_quantity",String.valueOf(cpu)+".0000 EOS");
+        params.put("unstake_net_quantity",String.valueOf(net)+".0000 EOS");
+        String bin=jsonToBin(true,EOSIO,ACTION_UNDELEGATEBW,params);
+        if(TextUtils.isEmpty(bin)){
+            return null;
+        }
+        try {
+            JSONObject binJson=new JSONObject(bin);
+            bin=binJson.getString("binargs");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Map<String,String>>auths=new ArrayList<Map<String,String>>();
+        HashMap<String,String>auth=new HashMap<String,String>();
+        auth.put(ACTOR,payer);
+        auth.put(PERMISSION,ACTIVE);
+        auths.add(auth);
+        Action action=new Action(EOSIO,ACTION_UNDELEGATEBW,bin,auths);
+        ArrayList<Action> actions=new ArrayList<Action>();
+        actions.add(action);
+        String result=pushTransaction(context,true,actions,null);
+        Log.i(TAG,"result of undelegatebw,payer:"+payer+"receiver:"+receiver+"cpu:"+cpu+",net:"+net+",result:"+result);
         return result;
     }
 }

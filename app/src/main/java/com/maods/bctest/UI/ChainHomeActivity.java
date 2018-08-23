@@ -35,20 +35,22 @@ public class ChainHomeActivity extends Activity {
     private static final String[] BTC_actions=new String[]{};
     private static final String[] ETH_actions=new String[]{};
     private static final String[] EOS_actions=new String[]{
-            EOSOperations.ACTION_GET_INFO,
-            EOSOperations.ACTION_GET_PRODUCERS,
+            EOSOperations.ACTION_LIST_WALLETS,
+            EOSOperations.ACTION_GET_RAM_PRICE,
+            EOSOperations.ACTION_BUYRAM,
+            EOSOperations.ACTION_SELLRAM,
+            EOSOperations.ACTION_DELEGATEBW,
+            EOSOperations.ACTION_UNDELEGATEBW,
+            EOSOperations.ACTION_TRANSFER,
             EOSOperations.ACTION_GET_AVAILABLE_BP_API_SERVER,
             EOSOperations.ACTION_GET_ACCOUNT,
+            EOSOperations.ACTION_GET_INFO,
+            EOSOperations.ACTION_GET_PRODUCERS,
             EOSOperations.ACTION_GET_BLOCK,
             EOSOperations.ACTION_GET_ABI,
             EOSOperations.ACTION_GET_CODE,
             EOSOperations.ACTION_GET_TABLE_ROWS,
-            EOSOperations.ACTION_GET_RAM_PRICE,
-            EOSOperations.ACTION_BUYRAM,
-            EOSOperations.ACTION_SELLRAM,
-            EOSOperations.ACTION_LIST_WALLETS,
-            EOSOperations.ACTION_JSON_TO_BIN,
-            EOSOperations.ACTION_TRANSFER
+            EOSOperations.ACTION_JSON_TO_BIN
     };
     private static final String[] Fabric_actions=new String[]{};
 
@@ -171,6 +173,8 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.ACTION_TRANSFER:
                     case EOSOperations.ACTION_BUYRAM:
                     case EOSOperations.ACTION_SELLRAM:
+                    case EOSOperations.ACTION_DELEGATEBW:
+                    case EOSOperations.ACTION_UNDELEGATEBW:
                         startEOSGetInfo(mTargetActions[position]);
                         break;
                     case EOSOperations.ACTION_LIST_WALLETS:

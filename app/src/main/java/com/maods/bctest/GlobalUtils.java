@@ -160,11 +160,13 @@ public class GlobalUtils {
                 String value=entry.getValue();
                 stringBuffer.append("\""+key+"\"")
                         .append(":");
-                if(!value.startsWith("{") && !value.startsWith("[")){
+                if(!value.startsWith("{") && !value.startsWith("[")
+                        && !value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")){
                     stringBuffer.append("\"");
                 }
                 stringBuffer.append(value);
-                if(!value.startsWith("{") && !value.startsWith("[")){
+                if(!value.startsWith("{") && !value.startsWith("[")
+                        && !value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")){
                     stringBuffer.append("\"");
                 }
                 stringBuffer.append(",");

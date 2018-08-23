@@ -47,6 +47,8 @@ public class EOSInfoActivity extends Activity {
     private String mAmount=null;
     private String mMemo=null;
     private int mRamBytes=0;
+    private int mEosForCpu=0;
+    private int mEosForNet=0;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
@@ -93,7 +95,9 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_JSON_TO_BIN)
                 ||mAction.equals(EOSOperations.ACTION_TRANSFER)
                 ||mAction.equals(EOSOperations.ACTION_BUYRAM)
-                ||mAction.equals(EOSOperations.ACTION_SELLRAM)){
+                ||mAction.equals(EOSOperations.ACTION_SELLRAM)
+                ||mAction.equals(EOSOperations.ACTION_DELEGATEBW)
+                ||mAction.equals(EOSOperations.ACTION_UNDELEGATEBW)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -154,6 +158,18 @@ public class EOSInfoActivity extends Activity {
                     hint=R.string.account_sell_ram;
                     mEdit2.setHint(R.string.bytes_to_sell);
                     mEdit2.setVisibility(View.VISIBLE);
+                    break;
+                case EOSOperations.ACTION_DELEGATEBW:
+                case EOSOperations.ACTION_UNDELEGATEBW:
+                    hint=R.string.account_pay_for_res;
+                    mEdit1.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+                    mEdit2.setHint(R.string.account_receive_res);
+                    mEdit2.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+                    mEdit2.setVisibility(View.VISIBLE);
+                    mEdit3.setHint(R.string.eos_for_cpu);
+                    mEdit3.setVisibility(View.VISIBLE);
+                    mEdit4.setHint(R.string.eos_for_net);
+                    mEdit4.setVisibility(View.VISIBLE);
                     break;
                 default:
                     break;
@@ -271,6 +287,20 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
+            case EOSOperations.ACTION_DELEGATEBW:
+            case EOSOperations.ACTION_UNDELEGATEBW:
+                mAccountName=mEdit1.getText().toString();
+                mAccount2Name=mEdit2.getText().toString();
+                mEosForCpu=new Integer(String.valueOf(mEdit3.getText().toString()));
+                mEosForNet=new Integer(String.valueOf(mEdit4.getText().toString()));
+                if(!isAccountNameLeagle(mAccountName) || !isAccountNameLeagle(mAccount2Name)){
+                    showAlertMsg(R.string.eos_account_length_err);
+                }else if(mEosForCpu<=0 || mEosForNet<=0){
+                    showAlertMsg(R.string.illegal_cpu_net);
+                }else{
+                    startAction();
+                }
+                break;
             default:
                 break;
         }
@@ -354,6 +384,12 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_SELLRAM:
                         mContent=EOSOperations.sellRam(EOSInfoActivity.this,mAccountName,mRamBytes);
+                        break;
+                    case EOSOperations.ACTION_DELEGATEBW:
+                        mContent=EOSOperations.delegatebw(EOSInfoActivity.this,mAccountName,mAccount2Name,mEosForCpu,mEosForNet);
+                        break;
+                    case EOSOperations.ACTION_UNDELEGATEBW:
+                        mContent=EOSOperations.undelegatebw(EOSInfoActivity.this,mAccountName,mAccount2Name,mEosForCpu,mEosForNet);
                         break;
                     default:
                         mContent=null;

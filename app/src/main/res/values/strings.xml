@@ -41,4 +41,9 @@
     <string name="illegal_ram_input">Illegal ram byte to buy</string>
     <string name="account_sell_ram">Account wish to sell ram</string>
     <string name="bytes_to_sell">How much RAM to sell (by Bytes)</string>
+    <string name="account_pay_for_res">Account pay for cpu/net</string>
+    <string name="account_receive_res">Account receive cpu/net</string>
+    <string name="eos_for_cpu">How much EOS for CPU (only input integer,ex. "1")</string>
+    <string name="eos_for_net">How much EOS for NET (only input integer,ex. "1")</string>
+    <string name="illegal_cpu_net">Illegal input of CPU/NET</string>
 </resources>
