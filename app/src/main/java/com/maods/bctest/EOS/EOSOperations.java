@@ -65,8 +65,11 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_REQUIRED_KEYS="get_required_keys";
     public static final String ACTION_TRANSFER="transfer";
     public static final String ACTION_PUSH_TRANSACTION="push_transaction";
+    public static final String ACTION_BUYRAM="buyrambytes";
+    public static final String ACTION_SELLRAM="sellram";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
+    private static final String PARAM_ACCOUNT="account";
     private static final String PARAM_BLOCK_NUMBER_OR_ID="block_num_or_id";
     private static final String PARAM_CODE_AS_WASM="code_as_wasm";
     private static final String CODE_AS_WASM="false";
@@ -82,6 +85,9 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String PARAM_MEMO="memo";
     private static final String PARAM_TRANSACTION="transaction";
     private static final String PARAM_AVAILABLE_KEYS="available_keys";
+    private static final String PARAM_PAYER="payer";
+    private static final String PARAM_RECEIVER="receiver";
+    private static final String PARAM_BYTES="bytes";
     private static final String ACTOR="actor";
     private static final String PERMISSION="permission";
     private static final String ACTIVE="active";
@@ -89,6 +95,7 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String ACCOUNT_EOSIO="eosio";
     private static final String TABLE_RAMMARKET="rammarket";
     private static final String EOSIO_TOKEN="eosio.token";
+    private static final String EOSIO="eosio";
     private static final int TX_EXPIRATION_IN_MILSEC = 30000;
 
     @Override
@@ -570,7 +577,7 @@ public class EOSOperations implements ChainCommonOperations {
         Action action=new Action(EOSIO_TOKEN,ACTION_TRANSFER,/*packActionData(params),*/bin,auths);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
-        String result=pushTransaction(context,true,EOSIO_TOKEN,ACTION_TRANSFER,actions,null);
+        String result=pushTransaction(context,true,actions,null);
         Log.i(TAG,"result of transfer,from:"+from+",to:"+to+",amount:"+amount+",memo:"+memo+",result:"+result);
         return result;
     }
@@ -578,11 +585,9 @@ public class EOSOperations implements ChainCommonOperations {
      * Can't be called in UI thread.
      * This's trying to push_transaction.
      * @param mainNet, whether execute on mainnet.
-     * @param contract you know it.
-     * @param action you know it.
      * @return just the result.
      */
-    public static String pushTransaction(Context context,boolean mainNet,String contract, String action, List<Action>actions, String[]pubKeysInput){
+    public static String pushTransaction(Context context,boolean mainNet,List<Action>actions, String[]pubKeysInput){
         EosWalletManager walletManager=EosWalletManager.getInstance(context);
         List<String>pubKeysAvailable;
         if(pubKeysInput!=null && pubKeysInput.length>0){
@@ -644,12 +649,11 @@ public class EOSOperations implements ChainCommonOperations {
             for(int i=0;i<actions.size();i++){
                 Action actionOri=actions.get(i);
                 io.plactal.eoscommander.data.remote.model.chain.Action actionSign=new io.plactal.eoscommander.data.remote.model.chain.Action();
-                actionSign.setAccount(EOSIO_TOKEN);
-                actionSign.setName(ACTION_TRANSFER);
+                actionSign.setAccount(actionOri.mAccount);
+                actionSign.setName(actionOri.mName);
                 actionSign.setData(actionOri.mData);
                 List<TypePermissionLevel>permissionLevels=new ArrayList<TypePermissionLevel>();
-                List<Action.Authorization> authsOri=actionOri.mAuth;
-                for(Action.Authorization authOri:authsOri){
+                for(Action.Authorization authOri:actionOri.mAuth){
                     TypePermissionLevel permissionLv=new TypePermissionLevel(authOri.mActor,authOri.mPermission);
                     permissionLevels.add(permissionLv);
                 }
@@ -733,5 +737,70 @@ public class EOSOperations implements ChainCommonOperations {
             e.printStackTrace();
             return headBlockTime;
         }
+    }
+
+    /**
+     * Don't call from UI thread.
+     * @param payer
+     * @param receiver
+     * @param bytes
+     * @return
+     */
+    public static String buyRam(Context context,String payer,String receiver,int bytes){
+        HashMap<String,String>params=new HashMap<String,String>();
+        params.put(PARAM_PAYER,payer);
+        params.put(PARAM_RECEIVER,receiver);
+        params.put(PARAM_BYTES,String.valueOf(bytes));
+        String bin=jsonToBin(true,EOSIO,ACTION_BUYRAM,params);
+        if(TextUtils.isEmpty(bin)){
+            return null;
+        }
+        try {
+            JSONObject binJson=new JSONObject(bin);
+            bin=binJson.getString("binargs");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Map<String,String>>auths=new ArrayList<Map<String,String>>();
+        HashMap<String,String>auth=new HashMap<String,String>();
+        auth.put(ACTOR,payer);
+        auth.put(PERMISSION,ACTIVE);
+        auths.add(auth);
+        Action action=new Action(EOSIO,ACTION_BUYRAM,bin,auths);
+        ArrayList<Action> actions=new ArrayList<Action>();
+        actions.add(action);
+        String result=pushTransaction(context,true,actions,null);
+        Log.i(TAG,"result of buyrambytes,payer:"+payer+",receiver:"+receiver+",bytes:"+bytes+",result:"+result);
+        return result;
+    }
+
+    /**
+     * Don't call from UI thread
+     */
+    public static String sellRam(Context context,String account,int bytes){
+        HashMap<String,String>params=new HashMap<String,String>();
+        params.put(PARAM_ACCOUNT,account);
+        params.put(PARAM_BYTES,String.valueOf(bytes));
+        String bin=jsonToBin(true,EOSIO,ACTION_SELLRAM,params);
+        if(TextUtils.isEmpty(bin)){
+            return null;
+        }
+        try {
+            JSONObject binJson=new JSONObject(bin);
+            bin=binJson.getString("binargs");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Map<String,String>>auths=new ArrayList<Map<String,String>>();
+        HashMap<String,String>auth=new HashMap<String,String>();
+        auth.put(ACTOR,account);
+        auth.put(PERMISSION,ACTIVE);
+        auths.add(auth);
+        Action action=new Action(EOSIO,ACTION_SELLRAM,bin,auths);
+        ArrayList<Action> actions=new ArrayList<Action>();
+        actions.add(action);
+        String result=pushTransaction(context,true,actions,null);
+        Log.i(TAG,"result of sellram,account:"+account+",bytes:"+bytes+",result:"+result);
+        return result;
     }
 }

@@ -46,6 +46,7 @@ public class EOSInfoActivity extends Activity {
     private String mAccount2Name=null;
     private String mAmount=null;
     private String mMemo=null;
+    private int mRamBytes=0;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
@@ -90,7 +91,9 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_GET_TABLE_ROWS)
                 ||mAction.equals(EOSOperations.ACTION_CREATE_WALLET)
                 ||mAction.equals(EOSOperations.ACTION_JSON_TO_BIN)
-                ||mAction.equals(EOSOperations.ACTION_TRANSFER)){
+                ||mAction.equals(EOSOperations.ACTION_TRANSFER)
+                ||mAction.equals(EOSOperations.ACTION_BUYRAM)
+                ||mAction.equals(EOSOperations.ACTION_SELLRAM)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -137,6 +140,20 @@ public class EOSInfoActivity extends Activity {
                     mEdit3.setVisibility(View.VISIBLE);
                     mEdit4.setHint(R.string.memo);
                     mEdit4.setVisibility(View.VISIBLE);
+                    break;
+                case EOSOperations.ACTION_BUYRAM:
+                    hint=R.string.account_pay_for_ram;
+                    mEdit1.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+                    mEdit2.setHint(R.string.account_receive_ram);
+                    mEdit2.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+                    mEdit2.setVisibility(View.VISIBLE);
+                    mEdit3.setHint(R.string.how_much_ram_to_buy);
+                    mEdit3.setVisibility(View.VISIBLE);
+                    break;
+                case EOSOperations.ACTION_SELLRAM:
+                    hint=R.string.account_sell_ram;
+                    mEdit2.setHint(R.string.bytes_to_sell);
+                    mEdit2.setVisibility(View.VISIBLE);
                     break;
                 default:
                     break;
@@ -231,6 +248,29 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
+            case EOSOperations.ACTION_BUYRAM:
+                mAccountName=mEdit1.getText().toString();
+                mAccount2Name=mEdit2.getText().toString();
+                mRamBytes=Integer.valueOf(mEdit3.getText().toString());
+                if(!isAccountNameLeagle(mAccountName) || !isAccountNameLeagle(mAccount2Name)){
+                    showAlertMsg(R.string.eos_account_length_err);
+                }else if(mRamBytes<=0){
+                    showAlertMsg(R.string.illegal_ram_input);
+                }else{
+                    startAction();
+                }
+                break;
+            case EOSOperations.ACTION_SELLRAM:
+                mAccountName=mEdit1.getText().toString();
+                mRamBytes=Integer.valueOf(mEdit2.getText().toString());
+                if(!isAccountNameLeagle(mAccountName)){
+                    showAlertMsg(R.string.eos_account_length_err);
+                }else if(mRamBytes<=0){
+                    showAlertMsg(R.string.illegal_ram_input);
+                }else{
+                    startAction();
+                }
+                break;
             default:
                 break;
         }
@@ -308,6 +348,12 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_TRANSFER:
                         mContent=EOSOperations.transfer(EOSInfoActivity.this,mAccountName,mAccount2Name,mAmount,mMemo);
+                        break;
+                    case EOSOperations.ACTION_BUYRAM:
+                        mContent=EOSOperations.buyRam(EOSInfoActivity.this,mAccountName,mAccount2Name,mRamBytes);
+                        break;
+                    case EOSOperations.ACTION_SELLRAM:
+                        mContent=EOSOperations.sellRam(EOSInfoActivity.this,mAccountName,mRamBytes);
                         break;
                     default:
                         mContent=null;

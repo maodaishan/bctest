@@ -35,4 +35,10 @@
     <string name="amount">Amount</string>
     <string name="memo">Memo</string>
     <string name="input_private_for_import">Input the private key you wish to import.</string>
+    <string name="account_pay_for_ram">Account pay for the ram.</string>
+    <string name="account_receive_ram">Account receive the ram.</string>
+    <string name="how_much_ram_to_buy">How much RAM to buy.(in Byte)</string>
+    <string name="illegal_ram_input">Illegal ram byte to buy</string>
+    <string name="account_sell_ram">Account wish to sell ram</string>
+    <string name="bytes_to_sell">How much RAM to sell (by Bytes)</string>
 </resources>
