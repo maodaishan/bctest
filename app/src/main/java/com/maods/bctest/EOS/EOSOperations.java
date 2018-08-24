@@ -58,9 +58,6 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_TABLE_ROWS="get_table_rows";
     public static final String ACTION_GET_RAM_PRICE="get_ram_price";        //actually this's not HTTP API, just for easy use
     public static final String ACTION_GET_PRODUCERS="get_producers";
-    public static final String ACTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
-    public static final String ACTION_CREATE_WALLET="create_wallet";
-    public static final String ACTION_LIST_WALLETS="list_wallets";
     public static final String ACTION_JSON_TO_BIN="abi_json_to_bin";
     public static final String ACTION_GET_REQUIRED_KEYS="get_required_keys";
     public static final String ACTION_TRANSFER="transfer";
@@ -69,6 +66,13 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_SELLRAM="sellram";
     public static final String ACTION_DELEGATEBW="delegatebw";
     public static final String ACTION_UNDELEGATEBW="undelegatebw";
+    public static final String FUNCTION_BROWSER="browser";
+    public static final String FUNCTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
+    public static final String FUNCTION_CREATE_WALLET="create_wallet";
+    public static final String FUNCTION_LIST_WALLETS="list_wallets";
+
+    public static final String ACTOR="actor";
+    public static final String PERMISSION="permission";
 
     private static final String PARAM_ACCOUNT_NAME="account_name";
     private static final String PARAM_ACCOUNT="account";
@@ -90,8 +94,6 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String PARAM_PAYER="payer";
     private static final String PARAM_RECEIVER="receiver";
     private static final String PARAM_BYTES="bytes";
-    private static final String ACTOR="actor";
-    private static final String PERMISSION="permission";
     private static final String ACTIVE="active";
     private static final String RESULT_AS_JSON="true";
     private static final String ACCOUNT_EOSIO="eosio";
@@ -582,6 +584,25 @@ public class EOSOperations implements ChainCommonOperations {
         actions.add(action);
         String result=pushTransaction(context,true,actions,null);
         Log.i(TAG,"result of transfer,from:"+from+",to:"+to+",amount:"+amount+",memo:"+memo+",result:"+result);
+        return result;
+    }
+
+    public static String executeAction(Context context,boolean mainNet,String account,String contract,Map<String,String>args,List<Map<String,String>>authsInput){
+        String bin=jsonToBin(mainNet,account,contract,args);
+        if(TextUtils.isEmpty(bin)){
+            return null;
+        }
+        try {
+            JSONObject binJson=new JSONObject(bin);
+            bin=binJson.getString("binargs");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Action action=new Action(account,contract,/*packActionData(params),*/bin,authsInput);
+        ArrayList<Action> actions=new ArrayList<Action>();
+        actions.add(action);
+        String result=pushTransaction(context,true,actions,null);
+        Log.i(TAG,"result of executeAction,account:"+account+",contract:"+contract+",args:"+args+",authsInput:"+authsInput+",result:"+result);
         return result;
     }
     /**

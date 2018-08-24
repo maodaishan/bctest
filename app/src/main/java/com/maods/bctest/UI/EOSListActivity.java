@@ -65,7 +65,7 @@ public class EOSListActivity extends Activity {
 
         mAction= getIntent().getStringExtra(GlobalConstants.EXTRA_KEY_ACTION);
         switch(mAction){
-            case EOSOperations.ACTION_LIST_WALLETS:{
+            case EOSOperations.FUNCTION_LIST_WALLETS:{
                 mTitleView.setText(R.string.list_wallets);
                 mInfoView.setText(R.string.wallet_list_info);
                 mEmptyView.setText(R.string.wallet_empty);
@@ -100,7 +100,7 @@ public class EOSListActivity extends Activity {
 
     private void onButtonClickHandler(){
         switch(mAction){
-            case EOSOperations.ACTION_LIST_WALLETS:
+            case EOSOperations.FUNCTION_LIST_WALLETS:
                 startCreateWalletActivity();
                 break;
             default:
@@ -111,7 +111,7 @@ public class EOSListActivity extends Activity {
     private void startCreateWalletActivity(){
         Intent intent=new Intent();
         intent.setClass(this,EOSInfoActivity.class);
-        intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,EOSOperations.ACTION_CREATE_WALLET);
+        intent.putExtra(GlobalConstants.EXTRA_KEY_ACTION,EOSOperations.FUNCTION_CREATE_WALLET);
         startActivity(intent);
         finish();
     }
@@ -122,7 +122,7 @@ public class EOSListActivity extends Activity {
                     @Override
                     public void run() {
                         switch(mAction){
-                            case EOSOperations.ACTION_LIST_WALLETS:{
+                            case EOSOperations.FUNCTION_LIST_WALLETS:{
                                 //openAllWallets();
                                 mWalletStatus= mManager.listWallets(null);
                                 int size=mWalletStatus.size();

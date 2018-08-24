@@ -91,7 +91,7 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_GET_ABI)
                 ||mAction.equals(EOSOperations.ACTION_GET_CODE)
                 ||mAction.equals(EOSOperations.ACTION_GET_TABLE_ROWS)
-                ||mAction.equals(EOSOperations.ACTION_CREATE_WALLET)
+                ||mAction.equals(EOSOperations.FUNCTION_CREATE_WALLET)
                 ||mAction.equals(EOSOperations.ACTION_JSON_TO_BIN)
                 ||mAction.equals(EOSOperations.ACTION_TRANSFER)
                 ||mAction.equals(EOSOperations.ACTION_BUYRAM)
@@ -124,7 +124,7 @@ public class EOSInfoActivity extends Activity {
                     mEdit3.setVisibility(View.VISIBLE);
                     mEdit3.setHint(R.string.input_table_name);
                     break;
-                case EOSOperations.ACTION_CREATE_WALLET:
+                case EOSOperations.FUNCTION_CREATE_WALLET:
                     hint=R.string.input_wallet_name;
                     break;
                 case EOSOperations.ACTION_JSON_TO_BIN:
@@ -196,7 +196,7 @@ public class EOSInfoActivity extends Activity {
         switch(mAction){
             case EOSOperations.ACTION_GET_ACCOUNT:
                 mAccountName=mEdit1.getText().toString();
-                boolean isAccountNameLegel=isAccountNameLeagle(mAccountName);
+                boolean isAccountNameLegel=EOSUtils.isAccountNameLeagle(mAccountName);
                 if(!isAccountNameLegel){
                     showAlertMsg(R.string.eos_account_length_err);
                 }else {
@@ -241,7 +241,7 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
-            case EOSOperations.ACTION_CREATE_WALLET:
+            case EOSOperations.FUNCTION_CREATE_WALLET:
                 mWalletName=mEdit1.getText().toString();
                 if(!TextUtils.isEmpty(mWalletName)) {
                     startAction();
@@ -258,7 +258,7 @@ public class EOSInfoActivity extends Activity {
                 mAccount2Name=mEdit2.getText().toString();
                 mAmount=mEdit3.getText().toString()+" EOS";
                 mMemo=mEdit4.getText().toString();
-                if(!isAccountNameLeagle(mAccountName) || !isAccountNameLeagle(mAccount2Name)){
+                if(!EOSUtils.isAccountNameLeagle(mAccountName) || !EOSUtils.isAccountNameLeagle(mAccount2Name)){
                     showAlertMsg(R.string.eos_account_length_err);
                 }else{
                     startAction();
@@ -268,7 +268,7 @@ public class EOSInfoActivity extends Activity {
                 mAccountName=mEdit1.getText().toString();
                 mAccount2Name=mEdit2.getText().toString();
                 mRamBytes=Integer.valueOf(mEdit3.getText().toString());
-                if(!isAccountNameLeagle(mAccountName) || !isAccountNameLeagle(mAccount2Name)){
+                if(!EOSUtils.isAccountNameLeagle(mAccountName) || !EOSUtils.isAccountNameLeagle(mAccount2Name)){
                     showAlertMsg(R.string.eos_account_length_err);
                 }else if(mRamBytes<=0){
                     showAlertMsg(R.string.illegal_ram_input);
@@ -279,7 +279,7 @@ public class EOSInfoActivity extends Activity {
             case EOSOperations.ACTION_SELLRAM:
                 mAccountName=mEdit1.getText().toString();
                 mRamBytes=Integer.valueOf(mEdit2.getText().toString());
-                if(!isAccountNameLeagle(mAccountName)){
+                if(!EOSUtils.isAccountNameLeagle(mAccountName)){
                     showAlertMsg(R.string.eos_account_length_err);
                 }else if(mRamBytes<=0){
                     showAlertMsg(R.string.illegal_ram_input);
@@ -293,7 +293,7 @@ public class EOSInfoActivity extends Activity {
                 mAccount2Name=mEdit2.getText().toString();
                 mEosForCpu=new Integer(String.valueOf(mEdit3.getText().toString()));
                 mEosForNet=new Integer(String.valueOf(mEdit4.getText().toString()));
-                if(!isAccountNameLeagle(mAccountName) || !isAccountNameLeagle(mAccount2Name)){
+                if(!EOSUtils.isAccountNameLeagle(mAccountName) || !EOSUtils.isAccountNameLeagle(mAccount2Name)){
                     showAlertMsg(R.string.eos_account_length_err);
                 }else if(mEosForCpu<=0 || mEosForNet<=0){
                     showAlertMsg(R.string.illegal_cpu_net);
@@ -304,21 +304,6 @@ public class EOSInfoActivity extends Activity {
             default:
                 break;
         }
-    }
-    private boolean isAccountNameLeagle(String input){
-        if(input.startsWith("eos")){//for eos system accounts.
-            return true;
-        }
-        if(input.length()!=EOSUtils.ACCOUNT_LENGTH){
-            return false;
-        }
-        for(int i=0;i<input.length();i++){
-            char c=input.charAt(i);
-            if(!((c>='a' && c<='z') || (c>='1' && c<='5'))){
-                return false;
-            }
-        }
-        return true;
     }
 
     private void startAction(){
@@ -343,7 +328,7 @@ public class EOSInfoActivity extends Activity {
                     case EOSOperations.ACTION_GET_PRODUCERS:
                         mContent=EOSOperations.getProducers();
                         break;
-                    case EOSOperations.ACTION_GET_AVAILABLE_BP_API_SERVER:
+                    case EOSOperations.FUNCTION_GET_AVAILABLE_BP_API_SERVER:
                         mContent=EOSOperations.getAvailableAPIServer();
                         break;
                     case EOSOperations.ACTION_GET_ACCOUNT:
@@ -365,7 +350,7 @@ public class EOSInfoActivity extends Activity {
                     case EOSOperations.ACTION_GET_RAM_PRICE:
                         mContent=EOSOperations.getRamPrice();
                         break;
-                    case EOSOperations.ACTION_CREATE_WALLET:
+                    case EOSOperations.FUNCTION_CREATE_WALLET:
                         String pswd=EOSOperations.createWallet(EOSInfoActivity.this,mWalletName);
                         if(!TextUtils.isEmpty(pswd)){
                             mContent= String.format(EOSInfoActivity.this.getResources().getString(R.string.wallet_pswd_notify),pswd);

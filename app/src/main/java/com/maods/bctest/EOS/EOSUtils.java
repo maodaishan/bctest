@@ -78,4 +78,20 @@ public class EOSUtils {
         result.add("https://jungle.eosio.cr:443");
         return result;
     }
+
+    public static boolean isAccountNameLeagle(String input){
+        if(input.startsWith("eos")){//for eos system accounts.
+            return true;
+        }
+        if(input.length()!=EOSUtils.ACCOUNT_LENGTH){
+            return false;
+        }
+        for(int i=0;i<input.length();i++){
+            char c=input.charAt(i);
+            if(!((c>='a' && c<='z') || (c>='1' && c<='5'))){
+                return false;
+            }
+        }
+        return true;
+    }
 }

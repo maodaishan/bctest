@@ -46,4 +46,7 @@
     <string name="eos_for_cpu">How much EOS for CPU (only input integer,ex. "1")</string>
     <string name="eos_for_net">How much EOS for NET (only input integer,ex. "1")</string>
     <string name="illegal_cpu_net">Illegal input of CPU/NET</string>
+    <string name="browser_info">Please input the account name which you wish to browse.\nWill use get_abi to query the contracts supplied in this account.</string>
+    <string name="empty_input">Some input is empty.</string>
+    <string name="get_abi_err">get_abi failed, please retry.</string>
 </resources>

@@ -40,12 +40,14 @@ public class Action {
         mData=data;
         //mHexData=data;
         mAuth=new ArrayList<Authorization>();
-        for(int i=0;i<authorizations.size();i++) {
-            Map<String, String> oneAuth=authorizations.get(i);
-            Authorization auth=new Authorization();
-            auth.mActor=oneAuth.get(ACTOR);
-            auth.mPermission=oneAuth.get(PERMISSION);
-            mAuth.add(auth);
+        if(authorizations!=null) {
+            for (int i = 0; i < authorizations.size(); i++) {
+                Map<String, String> oneAuth = authorizations.get(i);
+                Authorization auth = new Authorization();
+                auth.mActor = oneAuth.get(ACTOR);
+                auth.mPermission = oneAuth.get(PERMISSION);
+                mAuth.add(auth);
+            }
         }
     }
 
