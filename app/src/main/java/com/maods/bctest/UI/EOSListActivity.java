@@ -4,17 +4,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.maods.bctest.EOS.EOSOperations;
+import com.maods.bctest.EOS.EOSUtils;
 import com.maods.bctest.GlobalConstants;
 import com.maods.bctest.R;
 
@@ -36,6 +41,7 @@ public class EOSListActivity extends Activity {
     private TextView mTitleView;
     private TextView mInfoView;
     private ListView mListView;
+    private CheckBox mCheckBox;
     private Button mBtnView;
     private TextView mEmptyView;
     private ArrayAdapter<String> mAdapter;
@@ -55,6 +61,13 @@ public class EOSListActivity extends Activity {
         mInfoView=(TextView)findViewById(R.id.info);
         mEmptyView=(TextView)findViewById(R.id.empty);
         mListView=(ListView)findViewById(R.id.list);
+        mCheckBox=(CheckBox)findViewById(R.id.checkbox);
+        mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                handleRememberPswd();
+            }
+        });
         mBtnView=(Button)findViewById(R.id.button);
         mBtnView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +83,6 @@ public class EOSListActivity extends Activity {
                 mInfoView.setText(R.string.wallet_list_info);
                 mEmptyView.setText(R.string.wallet_empty);
                 mBtnView.setText(R.string.create_wallet);
-                mBtnView.setVisibility(View.VISIBLE);
             }
         }
 
@@ -86,6 +98,7 @@ public class EOSListActivity extends Activity {
         mAlertDialog.show();
 
         mManager= EosWalletManager.getInstance(this);
+        handleRememberPswd();
         startLoadContents();
     }
 
@@ -95,6 +108,15 @@ public class EOSListActivity extends Activity {
         if(mAlertDialog!=null){
             mAlertDialog.dismiss();
             mAlertDialog=null;
+        }
+    }
+
+    private void handleRememberPswd(){
+        SharedPreferences pref= PreferenceManager.getDefaultSharedPreferences(this);
+        if(mCheckBox.isChecked()){
+            pref.edit().putBoolean(EOSUtils.REMEMBER_WALLET_PSWD,true).commit();
+        }else{
+            pref.edit().putBoolean(EOSUtils.REMEMBER_WALLET_PSWD,false).commit();
         }
     }
 
@@ -221,6 +243,11 @@ public class EOSListActivity extends Activity {
                     public void onClick(DialogInterface dialog, int which) {
                         String pswd = inputServer.getText().toString();
                         mManager.unlock(name,pswd);
+                        SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(EOSListActivity.this);
+                        boolean rememberPswd=pref.getBoolean(EOSUtils.REMEMBER_WALLET_PSWD,false);
+                        if(rememberPswd){
+                            pref.edit().putString(name,pswd).commit();
+                        }
                         startLoadContents();
                     }
                 });

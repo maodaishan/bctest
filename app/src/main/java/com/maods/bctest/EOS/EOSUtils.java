@@ -29,6 +29,7 @@ public class EOSUtils {
     public static final String API_NET="net";
     public static final String API_PRODUCER="producer";
     public static final int ACCOUNT_LENGTH=12;
+    public static final String REMEMBER_WALLET_PSWD="eos_remember_wallet_pswd";
 
     private static Object mServerTestSync=new Object();
     private static boolean sServerTested=false;

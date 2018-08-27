@@ -14,6 +14,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.maods.bctest.GlobalConstants;
+import com.maods.bctest.GlobalUtils;
 import com.maods.bctest.R;
 
 import java.io.File;
@@ -130,7 +131,12 @@ public class EOSWalletManagerActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String priv = inputServer.getText().toString();
-                        mWallet.importKey(priv);
+                        try {
+                            mWallet.importKey(priv);
+                        }catch (IllegalArgumentException e){
+                            GlobalUtils.showAlertMsg(EOSWalletManagerActivity.this,R.string.private_key_import_fail);
+                            return;
+                        }
                         EosByteWriter writer = new EosByteWriter(256) ;
                         mWallet.pack(writer);
                         mWallet.saveFile(mWallet.getWalletFilePath());

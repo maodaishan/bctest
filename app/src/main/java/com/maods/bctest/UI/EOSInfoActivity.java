@@ -7,8 +7,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 import com.maods.bctest.EOS.EOSOperations;
 import com.maods.bctest.EOS.EOSUtils;
 import com.maods.bctest.GlobalConstants;
+import com.maods.bctest.GlobalUtils;
 import com.maods.bctest.R;
 
 import java.util.regex.Pattern;
@@ -198,7 +201,7 @@ public class EOSInfoActivity extends Activity {
                 mAccountName=mEdit1.getText().toString();
                 boolean isAccountNameLegel=EOSUtils.isAccountNameLeagle(mAccountName);
                 if(!isAccountNameLegel){
-                    showAlertMsg(R.string.eos_account_length_err);
+                    GlobalUtils.showAlertMsg(this,R.string.eos_account_length_err);
                 }else {
                     //Log.i(TAG,"mAccountName:"+mAccountName);
                     startAction();
@@ -208,7 +211,7 @@ public class EOSInfoActivity extends Activity {
                 mBlockNum=mEdit1.getText().toString();
                 int num=Integer.valueOf(mBlockNum);
                 if(num<=0){
-                    showAlertMsg(R.string.block_num_error);
+                    GlobalUtils.showAlertMsg(this,R.string.block_num_error);
                 }else{
                     startAction();
                 }
@@ -216,7 +219,7 @@ public class EOSInfoActivity extends Activity {
             case EOSOperations.ACTION_GET_ABI:
                 mAccountName=mEdit1.getText().toString();
                 if(TextUtils.isEmpty(mAccountName)){
-                    showAlertMsg(R.string.get_abi_account_err);
+                    GlobalUtils.showAlertMsg(this,R.string.get_abi_account_err);
                 }else {
                     startAction();
                 }
@@ -224,7 +227,7 @@ public class EOSInfoActivity extends Activity {
             case EOSOperations.ACTION_GET_CODE:
                 mAccountName=mEdit1.getText().toString();
                 if(TextUtils.isEmpty(mAccountName)){
-                    showAlertMsg(R.string.get_abi_account_err);
+                    GlobalUtils.showAlertMsg(this,R.string.get_abi_account_err);
                 }else {
                     startAction();
                 }
@@ -236,7 +239,7 @@ public class EOSInfoActivity extends Activity {
                 if(TextUtils.isEmpty(mAccountName)
                         ||TextUtils.isEmpty(mContractName)
                         ||TextUtils.isEmpty(mTableName)){
-                    showAlertMsg(R.string.get_table_row_input_err);
+                    GlobalUtils.showAlertMsg(this,R.string.get_table_row_input_err);
                 }else{
                     startAction();
                 }
@@ -259,7 +262,7 @@ public class EOSInfoActivity extends Activity {
                 mAmount=mEdit3.getText().toString()+" EOS";
                 mMemo=mEdit4.getText().toString();
                 if(!EOSUtils.isAccountNameLeagle(mAccountName) || !EOSUtils.isAccountNameLeagle(mAccount2Name)){
-                    showAlertMsg(R.string.eos_account_length_err);
+                    GlobalUtils.showAlertMsg(this,R.string.eos_account_length_err);
                 }else{
                     startAction();
                 }
@@ -269,9 +272,9 @@ public class EOSInfoActivity extends Activity {
                 mAccount2Name=mEdit2.getText().toString();
                 mRamBytes=Integer.valueOf(mEdit3.getText().toString());
                 if(!EOSUtils.isAccountNameLeagle(mAccountName) || !EOSUtils.isAccountNameLeagle(mAccount2Name)){
-                    showAlertMsg(R.string.eos_account_length_err);
+                    GlobalUtils.showAlertMsg(this,R.string.eos_account_length_err);
                 }else if(mRamBytes<=0){
-                    showAlertMsg(R.string.illegal_ram_input);
+                    GlobalUtils.showAlertMsg(this,R.string.illegal_ram_input);
                 }else{
                     startAction();
                 }
@@ -280,9 +283,9 @@ public class EOSInfoActivity extends Activity {
                 mAccountName=mEdit1.getText().toString();
                 mRamBytes=Integer.valueOf(mEdit2.getText().toString());
                 if(!EOSUtils.isAccountNameLeagle(mAccountName)){
-                    showAlertMsg(R.string.eos_account_length_err);
+                    GlobalUtils.showAlertMsg(this,R.string.eos_account_length_err);
                 }else if(mRamBytes<=0){
-                    showAlertMsg(R.string.illegal_ram_input);
+                    GlobalUtils.showAlertMsg(this,R.string.illegal_ram_input);
                 }else{
                     startAction();
                 }
@@ -294,9 +297,9 @@ public class EOSInfoActivity extends Activity {
                 mEosForCpu=new Integer(String.valueOf(mEdit3.getText().toString()));
                 mEosForNet=new Integer(String.valueOf(mEdit4.getText().toString()));
                 if(!EOSUtils.isAccountNameLeagle(mAccountName) || !EOSUtils.isAccountNameLeagle(mAccount2Name)){
-                    showAlertMsg(R.string.eos_account_length_err);
+                    GlobalUtils.showAlertMsg(this,R.string.eos_account_length_err);
                 }else if(mEosForCpu<=0 || mEosForNet<=0){
-                    showAlertMsg(R.string.illegal_cpu_net);
+                    GlobalUtils.showAlertMsg(this,R.string.illegal_cpu_net);
                 }else{
                     startAction();
                 }
@@ -353,6 +356,11 @@ public class EOSInfoActivity extends Activity {
                     case EOSOperations.FUNCTION_CREATE_WALLET:
                         String pswd=EOSOperations.createWallet(EOSInfoActivity.this,mWalletName);
                         if(!TextUtils.isEmpty(pswd)){
+                            SharedPreferences pref= PreferenceManager.getDefaultSharedPreferences(EOSInfoActivity.this);
+                            boolean rememberWallet=pref.getBoolean(EOSUtils.REMEMBER_WALLET_PSWD,false);
+                            if(rememberWallet){
+                                pref.edit().putString(mWalletName,pswd).commit();
+                            }
                             mContent= String.format(EOSInfoActivity.this.getResources().getString(R.string.wallet_pswd_notify),pswd);
                         }else{
                             mContent= EOSInfoActivity.this.getString(R.string.wallet_create_failed);
@@ -407,16 +415,5 @@ public class EOSInfoActivity extends Activity {
         }else{
             mContentView.setText(R.string.get_info_error);
         }
-    }
-    private void showAlertMsg(int msg){
-        AlertDialog.Builder builder=new AlertDialog.Builder(this);
-        builder.setMessage(msg);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
     }
 }

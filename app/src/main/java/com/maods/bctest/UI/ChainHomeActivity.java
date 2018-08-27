@@ -2,10 +2,16 @@ package com.maods.bctest.UI;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,11 +23,16 @@ import com.maods.bctest.ChainCommonOperations;
 import com.maods.bctest.EOS.EOSOperations;
 import com.maods.bctest.EOS.EOSUtils;
 import com.maods.bctest.GlobalConstants;
+import com.maods.bctest.GlobalUtils;
 import com.maods.bctest.R;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import io.plactal.eoscommander.data.wallet.EosWallet;
+import io.plactal.eoscommander.data.wallet.EosWalletManager;
 
 /**
  * Created by MAODS on 2018/7/17.
@@ -58,6 +69,7 @@ public class ChainHomeActivity extends Activity {
     String mTarget;
     String[] mTargetActions;
     private ChainCommonOperations mCommonOps=null;
+    private ArrayList<EosWallet.Status> mWalletStatus;
 
     private LinearLayout mContentView;
     private TextView mTitleView;
@@ -129,7 +141,7 @@ public class ChainHomeActivity extends Activity {
             });
             t.start();
         }
-
+        checkAndLoadWallets();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE);
@@ -141,6 +153,35 @@ public class ChainHomeActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults){
         return;
+    }
+
+    private void checkAndLoadWallets(){
+        //only support EOS now.
+        if(mTarget!= GlobalConstants.EOS){
+            return;
+        }
+        EosWalletManager manager=EosWalletManager.getInstance(this);
+        //openAllWallets();
+        mWalletStatus= manager.listWallets(null);
+        int size=mWalletStatus.size();
+        if(size==0){
+            GlobalUtils.showAlertMsg(ChainHomeActivity.this,R.string.no_wallet_alert);
+        }else{
+            SharedPreferences pref= PreferenceManager.getDefaultSharedPreferences(this);
+            boolean rememberPswd=pref.getBoolean(EOSUtils.REMEMBER_WALLET_PSWD,false);
+            if(rememberPswd){
+                for(int i=0;i<mWalletStatus.size();i++){
+                    EosWallet.Status status=mWalletStatus.get(i);
+                    if(status.locked){
+                        String name=status.walletName;
+                        String pswd=pref.getString(name,null);
+                        if(!TextUtils.isEmpty(pswd)){
+                            manager.getWallet(name).unlock(pswd);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void updateInfo(List<String>servers){

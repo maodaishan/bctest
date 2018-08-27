@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.maods.bctest.EOS.EOSAbiHelper;
 import com.maods.bctest.EOS.EOSOperations;
 import com.maods.bctest.EOS.EOSUtils;
+import com.maods.bctest.GlobalUtils;
 import com.maods.bctest.R;
 
 import org.json.JSONArray;
@@ -83,7 +84,7 @@ public class EOSBrowser extends Activity {
             public void onClick(View v) {
                 mAccount=mAccountView.getText().toString();
                 if(!EOSUtils.isAccountNameLeagle(mAccount)){
-                    showAlertMsg(R.string.eos_account_length_err);
+                    GlobalUtils.showAlertMsg(EOSBrowser.this,R.string.eos_account_length_err);
                 }else{
                     if(mAlertDialog!=null){
                         mAlertDialog.dismiss();
@@ -100,7 +101,7 @@ public class EOSBrowser extends Activity {
                                 EOSBrowser.this.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        showAlertMsg(R.string.get_abi_err);
+                                        GlobalUtils.showAlertMsg(EOSBrowser.this,R.string.get_abi_err);
                                         if(mAlertDialog!=null){
                                             mAlertDialog.dismiss();
                                             mAlertDialog=null;
@@ -113,7 +114,7 @@ public class EOSBrowser extends Activity {
                             EOSBrowser.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mAuthAccount.setText(mAccount);
+                                    //mAuthAccount.setText(mAccount);
                                     mAuthPermission.setText("active");
                                     updateActionsList();
                                 }
@@ -312,18 +313,6 @@ public class EOSBrowser extends Activity {
                 mResultView.invalidate();
             }
         });
-    }
-
-    private void showAlertMsg(int msg){
-        AlertDialog.Builder builder=new AlertDialog.Builder(this);
-        builder.setMessage(msg);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
     }
 
     private void saveInputForActionArgs(int position,String input){

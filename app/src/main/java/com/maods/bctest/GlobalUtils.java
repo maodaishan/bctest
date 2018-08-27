@@ -1,5 +1,8 @@
 package com.maods.bctest;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -189,5 +192,17 @@ public class GlobalUtils {
             e.printStackTrace();
         }
         return result;*/
+    }
+
+    public static void showAlertMsg(Context context, int msg){
+        AlertDialog.Builder builder=new AlertDialog.Builder(context);
+        builder.setMessage(msg);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
     }
 }
