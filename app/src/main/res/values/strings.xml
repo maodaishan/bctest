@@ -52,4 +52,7 @@
     <string name="remember_wallets">Remember wallet password</string>
     <string name="no_wallet_alert">No wallet created now,some operations need create wallet and import private key.\nYou can click "list wallets" to view current wallets and create a new one.</string>
     <string name="private_key_import_fail">Invalid private key, please check and input carefully.</string>
+    <string name="offset">offset</string>
+    <string name="pos">pos</string>
+    <string name="invalid_pos_or_offset">Invalid pos or offset</string>
 </resources>

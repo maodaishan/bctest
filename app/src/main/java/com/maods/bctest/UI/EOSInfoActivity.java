@@ -52,6 +52,8 @@ public class EOSInfoActivity extends Activity {
     private int mRamBytes=0;
     private int mEosForCpu=0;
     private int mEosForNet=0;
+    private int mOffset=-1;
+    private int mPos=-1;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
@@ -100,7 +102,8 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_BUYRAM)
                 ||mAction.equals(EOSOperations.ACTION_SELLRAM)
                 ||mAction.equals(EOSOperations.ACTION_DELEGATEBW)
-                ||mAction.equals(EOSOperations.ACTION_UNDELEGATEBW)){
+                ||mAction.equals(EOSOperations.ACTION_UNDELEGATEBW)
+                ||mAction.equals(EOSOperations.ACTION_GET_ACTIONS)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -173,6 +176,14 @@ public class EOSInfoActivity extends Activity {
                     mEdit3.setVisibility(View.VISIBLE);
                     mEdit4.setHint(R.string.eos_for_net);
                     mEdit4.setVisibility(View.VISIBLE);
+                    break;
+                case EOSOperations.ACTION_GET_ACTIONS:
+                    hint=R.string.input_account_name;
+                    mEdit1.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+                    mEdit2.setHint(R.string.offset);
+                    mEdit2.setVisibility(View.VISIBLE);
+                    mEdit3.setHint(R.string.pos);
+                    mEdit3.setVisibility(View.VISIBLE);
                     break;
                 default:
                     break;
@@ -304,6 +315,18 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
+            case EOSOperations.ACTION_GET_ACTIONS:
+                mAccountName=mEdit1.getText().toString();
+                mOffset=Integer.parseInt(mEdit2.getText().toString());
+                mPos=Integer.parseInt(mEdit3.getText().toString());
+                if(!EOSUtils.isAccountNameLeagle(mAccountName)){
+                    GlobalUtils.showAlertMsg(this,R.string.eos_account_length_err);
+                }else if(mOffset>=0 || mPos>=0){
+                    GlobalUtils.showAlertMsg(this,R.string.invalid_pos_or_offset);
+                }else{
+                    startAction();
+                }
+                break;
             default:
                 break;
         }
@@ -383,6 +406,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_UNDELEGATEBW:
                         mContent=EOSOperations.undelegatebw(EOSInfoActivity.this,mAccountName,mAccount2Name,mEosForCpu,mEosForNet);
+                        break;
+                    case EOSOperations.ACTION_GET_ACTIONS:
+                        mContent=EOSOperations.getActions(mAccountName,mPos,mOffset);
                         break;
                     default:
                         mContent=null;

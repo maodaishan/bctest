@@ -66,6 +66,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_SELLRAM="sellram";
     public static final String ACTION_DELEGATEBW="delegatebw";
     public static final String ACTION_UNDELEGATEBW="undelegatebw";
+    public static final String ACTION_GET_ACTIONS="get_actions";
     public static final String FUNCTION_BROWSER="browser";
     public static final String FUNCTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
     public static final String FUNCTION_CREATE_WALLET="create_wallet";
@@ -94,6 +95,8 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String PARAM_PAYER="payer";
     private static final String PARAM_RECEIVER="receiver";
     private static final String PARAM_BYTES="bytes";
+    private static final String PARAM_OFFSET="offset";
+    private static final String PARAM_POS="pos";
     private static final String ACTIVE="active";
     private static final String RESULT_AS_JSON="true";
     private static final String ACCOUNT_EOSIO="eosio";
@@ -413,11 +416,22 @@ public class EOSOperations implements ChainCommonOperations {
         return null;
     }
 
+    /**
+     * test available servers.
+     * this will call get_actions, to prevent getting nodes not suppling history apis.
+     * @param server
+     * @return
+     */
     private static boolean testAPIServerAvailable(String server){
-        URL url=null;
+        String testResult=getActions(server,EOSIO,-1,-1);
+        if(!TextUtils.isEmpty(testResult)){
+            return true;
+        }
+        return false;
+        /*URL url=null;
         try {
             StringBuilder sb=new StringBuilder(server);
-            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+EOSOperations.ACTION_GET_INFO);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+EOSOperations.ACTION_GET_ACTIONS);
             url=new URL(sb.toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -438,7 +452,7 @@ public class EOSOperations implements ChainCommonOperations {
         }finally {
             httpURLConnection.disconnect();
         }
-        return false;
+        return false;*/
     }
 
     public static String createWallet(Context context,String walletName){
@@ -896,5 +910,41 @@ public class EOSOperations implements ChainCommonOperations {
         String result=pushTransaction(context,true,actions,null);
         Log.i(TAG,"result of undelegatebw,payer:"+payer+"receiver:"+receiver+"cpu:"+cpu+",net:"+net+",result:"+result);
         return result;
+    }
+
+    /**
+     * don't call in UI thread
+     * @param accountName
+     * @return
+     */
+    private static String getActions(String server,String accountName,int pos,int offset){
+        StringBuilder sb=new StringBuilder(server);
+        sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_HISTORY+"/"+ACTION_GET_ACTIONS);
+        String url=sb.toString();
+        HashMap<String,String> params=new HashMap<String,String>();
+        params.put(PARAM_ACCOUNT_NAME,accountName);
+        params.put(PARAM_OFFSET,String.valueOf(offset));
+        params.put(PARAM_POS,String.valueOf(pos));
+        String content=GlobalUtils.postToServer(url,params);
+        Log.i(TAG,"geting action from:"+url+"for account: "+accountName+",pos:"+pos+",offset:"+offset+",result:"+content);
+        if(!TextUtils.isEmpty(content)){
+            return content;
+        }
+        return null;
+    }
+
+    public static String getActions(String accountName,int pos,int offset){
+        List<String>servers=EOSUtils.getAvailableServers();
+        if(servers.size()==0){
+            return null;
+        }
+        for(int i=0;i<servers.size();i++) {
+            String server = servers.get(i);
+            String content=getActions(server,accountName,pos,offset);
+            if(!TextUtils.isEmpty(content)){
+                return content;
+            }
+        }
+        return null;
     }
 }

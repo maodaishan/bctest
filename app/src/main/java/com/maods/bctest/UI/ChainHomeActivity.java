@@ -41,6 +41,7 @@ import io.plactal.eoscommander.data.wallet.EosWalletManager;
 public class ChainHomeActivity extends Activity {
     private static final String TAG="ChainHomeActivity";
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE=1;
+    private static final int MAX_DISPLAY_AVAILABLE_SERVERS=5;
 
     private static final String GET_CHAIN_INFO="get_chain_info";
     private static final String[] BTC_actions=new String[]{};
@@ -56,10 +57,11 @@ public class ChainHomeActivity extends Activity {
             EOSOperations.FUNCTION_BROWSER,
             EOSOperations.FUNCTION_GET_AVAILABLE_BP_API_SERVER,
             EOSOperations.ACTION_GET_ACCOUNT,
+            EOSOperations.ACTION_GET_ABI,
             EOSOperations.ACTION_GET_INFO,
+            EOSOperations.ACTION_GET_ACTIONS,
             EOSOperations.ACTION_GET_PRODUCERS,
             EOSOperations.ACTION_GET_BLOCK,
-            EOSOperations.ACTION_GET_ABI,
             EOSOperations.ACTION_GET_CODE,
             EOSOperations.ACTION_GET_TABLE_ROWS,
             EOSOperations.ACTION_JSON_TO_BIN
@@ -189,8 +191,12 @@ public class ChainHomeActivity extends Activity {
             mInfoView.setText(R.string.no_server_available);
         }else{
             StringBuilder sb=new StringBuilder();
-            for(int i=0;i<servers.size();i++){
+            int serverCount=servers.size();
+            for(int i=0;i<serverCount && i<MAX_DISPLAY_AVAILABLE_SERVERS;i++){
                 sb.append(servers.get(i)+"\n");
+            }
+            if(serverCount>MAX_DISPLAY_AVAILABLE_SERVERS){
+                sb.append("...");
             }
             String serversStr=String.format(getResources().getString(R.string.available_servers),sb.toString());
             mInfoView.setText(serversStr);
@@ -217,6 +223,7 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.ACTION_SELLRAM:
                     case EOSOperations.ACTION_DELEGATEBW:
                     case EOSOperations.ACTION_UNDELEGATEBW:
+                    case EOSOperations.ACTION_GET_ACTIONS:
                         startEOSGetInfo(mTargetActions[position]);
                         break;
                     case EOSOperations.FUNCTION_LIST_WALLETS:
