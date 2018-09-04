@@ -57,6 +57,7 @@ public class ChainHomeActivity extends Activity {
             EOSOperations.FUNCTION_BROWSER,
             EOSOperations.FUNCTION_GET_AVAILABLE_BP_API_SERVER,
             EOSOperations.ACTION_GET_ACCOUNT,
+            EOSOperations.ACTION_GET_TRANSACTION,
             EOSOperations.ACTION_GET_ABI,
             EOSOperations.ACTION_GET_INFO,
             EOSOperations.ACTION_GET_ACTIONS,
@@ -224,6 +225,7 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.ACTION_DELEGATEBW:
                     case EOSOperations.ACTION_UNDELEGATEBW:
                     case EOSOperations.ACTION_GET_ACTIONS:
+                    case EOSOperations.ACTION_GET_TRANSACTION:
                         startEOSGetInfo(mTargetActions[position]);
                         break;
                     case EOSOperations.FUNCTION_LIST_WALLETS:

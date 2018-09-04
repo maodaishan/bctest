@@ -67,6 +67,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_DELEGATEBW="delegatebw";
     public static final String ACTION_UNDELEGATEBW="undelegatebw";
     public static final String ACTION_GET_ACTIONS="get_actions";
+    public static final String ACTION_GET_TRANSACTION="get_transaction";
     public static final String FUNCTION_BROWSER="browser";
     public static final String FUNCTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
     public static final String FUNCTION_CREATE_WALLET="create_wallet";
@@ -941,6 +942,31 @@ public class EOSOperations implements ChainCommonOperations {
         for(int i=0;i<servers.size();i++) {
             String server = servers.get(i);
             String content=getActions(server,accountName,pos,offset);
+            if(!TextUtils.isEmpty(content)){
+                return content;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Don't call from UI thread
+     * @return
+     */
+    public static String getTransaction(String id){
+        List<String>servers=EOSUtils.getAvailableServers();
+        if(servers.size()==0){
+            return null;
+        }
+        for(int i=0;i<servers.size();i++){
+            String server=servers.get(i);
+            StringBuilder sb=new StringBuilder(server);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_HISTORY+"/"+ACTION_GET_TRANSACTION);
+            String url=sb.toString();
+            HashMap<String,String> params=new HashMap<String,String>();
+            params.put("id",id);
+            String content=GlobalUtils.postToServer(url,params);
+            Log.i(TAG,"getTransaction from:"+url+",id:"+id+",result:"+content);
             if(!TextUtils.isEmpty(content)){
                 return content;
             }

@@ -54,6 +54,7 @@ public class EOSInfoActivity extends Activity {
     private int mEosForNet=0;
     private int mOffset=-1;
     private int mPos=-1;
+    private String mTransactionId;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
@@ -103,7 +104,8 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_SELLRAM)
                 ||mAction.equals(EOSOperations.ACTION_DELEGATEBW)
                 ||mAction.equals(EOSOperations.ACTION_UNDELEGATEBW)
-                ||mAction.equals(EOSOperations.ACTION_GET_ACTIONS)){
+                ||mAction.equals(EOSOperations.ACTION_GET_ACTIONS)
+                ||mAction.equals(EOSOperations.ACTION_GET_TRANSACTION)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -184,6 +186,10 @@ public class EOSInfoActivity extends Activity {
                     mEdit2.setVisibility(View.VISIBLE);
                     mEdit3.setHint(R.string.pos);
                     mEdit3.setVisibility(View.VISIBLE);
+                    break;
+                case EOSOperations.ACTION_GET_TRANSACTION:
+                    hint=R.string.transaction_id;
+                    mEdit1.setFilters(new InputFilter[]{new InputFilter.LengthFilter(100)});
                     break;
                 default:
                     break;
@@ -327,6 +333,10 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
+            case EOSOperations.ACTION_GET_TRANSACTION:
+                mTransactionId=mEdit1.getText().toString();
+                startAction();
+                break;
             default:
                 break;
         }
@@ -409,6 +419,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_GET_ACTIONS:
                         mContent=EOSOperations.getActions(mAccountName,mPos,mOffset);
+                        break;
+                    case EOSOperations.ACTION_GET_TRANSACTION:
+                        mContent=EOSOperations.getTransaction(mTransactionId);
                         break;
                     default:
                         mContent=null;
