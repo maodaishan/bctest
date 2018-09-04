@@ -56,4 +56,6 @@
     <string name="pos">pos</string>
     <string name="invalid_pos_or_offset">Invalid pos or offset</string>
     <string name="transaction_id">Transaction id</string>
+    <string name="action">Action</string>
+    <string name="binargs">Binargs</string>
 </resources>

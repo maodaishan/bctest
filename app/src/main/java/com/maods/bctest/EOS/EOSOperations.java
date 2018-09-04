@@ -68,6 +68,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_UNDELEGATEBW="undelegatebw";
     public static final String ACTION_GET_ACTIONS="get_actions";
     public static final String ACTION_GET_TRANSACTION="get_transaction";
+    public static final String ACTION_BIN_TO_JSON="abi_bin_to_json";
     public static final String FUNCTION_BROWSER="browser";
     public static final String FUNCTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
     public static final String FUNCTION_CREATE_WALLET="create_wallet";
@@ -98,6 +99,7 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String PARAM_BYTES="bytes";
     private static final String PARAM_OFFSET="offset";
     private static final String PARAM_POS="pos";
+    private static final String PARAM_BINARGS="binargs";
     private static final String ACTIVE="active";
     private static final String RESULT_AS_JSON="true";
     private static final String ACCOUNT_EOSIO="eosio";
@@ -967,6 +969,29 @@ public class EOSOperations implements ChainCommonOperations {
             params.put("id",id);
             String content=GlobalUtils.postToServer(url,params);
             Log.i(TAG,"getTransaction from:"+url+",id:"+id+",result:"+content);
+            if(!TextUtils.isEmpty(content)){
+                return content;
+            }
+        }
+        return null;
+    }
+
+    public static String binToJson(String code,String action,String bin){
+        List<String>servers=EOSUtils.getAvailableServers();
+        if(servers.size()==0){
+            return null;
+        }
+        for(int i=0;i<servers.size();i++){
+            String server=servers.get(i);
+            StringBuilder sb=new StringBuilder(server);
+            sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_BIN_TO_JSON);
+            String url=sb.toString();
+            HashMap<String,String> params=new HashMap<String,String>();
+            params.put(PARAM_CODE,code);
+            params.put(PARAM_ACTION,action);
+            params.put(PARAM_BINARGS,bin);
+            String content=GlobalUtils.postToServer(url,params);
+            Log.i(TAG,"binToJson from:"+url+",code:"+code+",action+"+action+",result:"+content);
             if(!TextUtils.isEmpty(content)){
                 return content;
             }

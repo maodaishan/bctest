@@ -55,6 +55,8 @@ public class EOSInfoActivity extends Activity {
     private int mOffset=-1;
     private int mPos=-1;
     private String mTransactionId;
+    private String mActionOfBin;
+    private String mBinargs;
 
     private TextView mContentView;
     private AlertDialog mAlertDialog;
@@ -105,7 +107,8 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_DELEGATEBW)
                 ||mAction.equals(EOSOperations.ACTION_UNDELEGATEBW)
                 ||mAction.equals(EOSOperations.ACTION_GET_ACTIONS)
-                ||mAction.equals(EOSOperations.ACTION_GET_TRANSACTION)){
+                ||mAction.equals(EOSOperations.ACTION_GET_TRANSACTION)
+                ||mAction.equals(EOSOperations.ACTION_BIN_TO_JSON)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -190,6 +193,13 @@ public class EOSInfoActivity extends Activity {
                 case EOSOperations.ACTION_GET_TRANSACTION:
                     hint=R.string.transaction_id;
                     mEdit1.setFilters(new InputFilter[]{new InputFilter.LengthFilter(100)});
+                    break;
+                case EOSOperations.ACTION_BIN_TO_JSON:
+                    hint=R.string.input_account_name;
+                    mEdit2.setHint(R.string.action);
+                    mEdit2.setVisibility(View.VISIBLE);
+                    mEdit3.setHint(R.string.binargs);
+                    mEdit3.setVisibility(View.VISIBLE);
                     break;
                 default:
                     break;
@@ -337,6 +347,15 @@ public class EOSInfoActivity extends Activity {
                 mTransactionId=mEdit1.getText().toString();
                 startAction();
                 break;
+            case EOSOperations.ACTION_BIN_TO_JSON:
+                mAccountName=mEdit1.getText().toString();
+                mActionOfBin=mEdit2.getText().toString();
+                mBinargs=mEdit3.getText().toString();
+                if(!EOSUtils.isAccountNameLeagle(mAccountName)) {
+                    GlobalUtils.showAlertMsg(this, R.string.eos_account_length_err);
+                }else{
+                    startAction();
+                }
             default:
                 break;
         }
@@ -422,6 +441,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_GET_TRANSACTION:
                         mContent=EOSOperations.getTransaction(mTransactionId);
+                        break;
+                    case EOSOperations.ACTION_BIN_TO_JSON:
+                        mContent=EOSOperations.binToJson(mAccountName,mActionOfBin,mBinargs);
                         break;
                     default:
                         mContent=null;
