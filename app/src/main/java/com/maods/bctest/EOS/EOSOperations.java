@@ -360,7 +360,7 @@ public class EOSOperations implements ChainCommonOperations {
             String content=GlobalUtils.postToServer(url,params);
             Log.i(TAG,"geting producers from:"+url+",result:"+content);
             if(TextUtils.isEmpty(content)){
-                return null;
+                continue;
             }
             try {
                 //get url for each BP
@@ -371,6 +371,12 @@ public class EOSOperations implements ChainCommonOperations {
                 for(int bpIndex=0;bpIndex<size;bpIndex++){
                     JSONObject bp=(JSONObject)bps.getJSONObject(bpIndex);
                     bpUrl.add(bp.getString("url"));
+                }
+                Log.i(TAG,"bpUrl.size:"+bpUrl.size());
+                if(bpUrl.size()>0){
+                    for (int j=0;j<bpUrl.size();j++){
+                        Log.i(TAG,"bpUrl("+j+")="+bpUrl.get(j).toString());
+                    }
                 }
                 if(bpUrl.size()==0){
                     return null;
@@ -385,11 +391,13 @@ public class EOSOperations implements ChainCommonOperations {
                     }
                     JSONObject infoJson=new JSONObject(infoStr);
                     JSONArray nodes=infoJson.getJSONArray("nodes");
+                    Log.i(TAG,"nodes:"+nodes);
                     if(nodes==null){
                         continue;
                     }
                     JSONObject node=nodes.getJSONObject(0);
-                    String apiUrl=node.getString("api_endpoint");
+                    String apiUrl=node.optString("api_endpoint");
+                    Log.i(TAG,"api_endpoint:"+apiUrl);
                     if(TextUtils.isEmpty(apiUrl)){
                         continue;
                     }
@@ -417,7 +425,10 @@ public class EOSOperations implements ChainCommonOperations {
         HttpURLConnection httpURLConnection=null;
         try {
             httpURLConnection = (HttpURLConnection) url.openConnection();
-            if(httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            int responseCode=httpURLConnection.getResponseCode();
+            Log.i(TAG,"testAPIServerAvailable,server:"+server+",responseCode:"+responseCode);
+            if(responseCode == HttpURLConnection.HTTP_OK
+                    ||responseCode==HttpURLConnection.HTTP_ACCEPTED ) {
                 return true;
             } else {
                 return false;
