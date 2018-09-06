@@ -70,10 +70,6 @@ public class EOSInfoActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
-        long time=System.currentTimeMillis();
-        Log.i(TAG,"time:"+time);
-        long timeDiff=time-Long.parseLong("1536072384012");
-        Log.i(TAG,"timeDiff:"+timeDiff+",it's "+timeDiff/1000/3600+" hours");
         mAction=getIntent().getStringExtra(GlobalConstants.EXTRA_KEY_ACTION);
 
         setContentView(R.layout.eos_info);
@@ -111,7 +107,8 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.ACTION_UNDELEGATEBW)
                 ||mAction.equals(EOSOperations.ACTION_GET_ACTIONS)
                 ||mAction.equals(EOSOperations.ACTION_GET_TRANSACTION)
-                ||mAction.equals(EOSOperations.ACTION_BIN_TO_JSON)){
+                ||mAction.equals(EOSOperations.ACTION_BIN_TO_JSON)
+                ||mAction.equals(EOSOperations.FUNCTION_MY_PROPERTY)){
             mBtn.setVisibility(View.VISIBLE);
             mBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -125,6 +122,7 @@ public class EOSInfoActivity extends Activity {
                 case EOSOperations.ACTION_GET_ACCOUNT:
                 case EOSOperations.ACTION_GET_ABI:
                 case EOSOperations.ACTION_GET_CODE:
+                case EOSOperations.FUNCTION_MY_PROPERTY:
                     hint=R.string.input_account_name;
                     break;
                 case EOSOperations.ACTION_GET_BLOCK:
@@ -228,6 +226,7 @@ public class EOSInfoActivity extends Activity {
     private void onBtnClicked(){
         switch(mAction){
             case EOSOperations.ACTION_GET_ACCOUNT:
+            case EOSOperations.FUNCTION_MY_PROPERTY:
                 mAccountName=mEdit1.getText().toString();
                 boolean isAccountNameLegel=EOSUtils.isAccountNameLeagle(mAccountName);
                 if(!isAccountNameLegel){
@@ -450,6 +449,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.FUNCTION_GET_PRICE:
                         mContent=EOSOperations.getPriceInfo(EOSInfoActivity.this);
+                        break;
+                    case EOSOperations.FUNCTION_MY_PROPERTY:
+                        mContent=EOSOperations.getAccountProperty(EOSInfoActivity.this,mAccountName);
                         break;
                     default:
                         mContent=null;

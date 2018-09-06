@@ -66,4 +66,12 @@
         lowest price:%5$s.\n
         amount:%6$s.\n
         volumn:%7$s.</string>
+    <string name="account_balance_info">Balance of %1$s:%2$f\n
+        Details:\n
+            liquid eos:%3$f\n
+            ram:%4$d Byte\n
+            cpu:%5$f\n
+            net:%6$f\n
+            total eos:%7$f\n
+            price:%8$f</string>
 </resources>

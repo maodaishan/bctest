@@ -73,7 +73,8 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String FUNCTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
     public static final String FUNCTION_CREATE_WALLET="create_wallet";
     public static final String FUNCTION_LIST_WALLETS="list_wallets";
-    public static final String FUNCTION_GET_PRICE="get_price";
+    public static final String FUNCTION_GET_PRICE="get_price(neet climb over the great wall in China)";
+    public static final String FUNCTION_MY_PROPERTY="check_my_property(neet climb over the great wall in China)";
 
     public static final String ACTOR="actor";
     public static final String PERMISSION="permission";
@@ -1061,5 +1062,81 @@ public class EOSOperations implements ChainCommonOperations {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String getAccountProperty(Context context,String account){
+        String accountInfo=getAccount(account);
+        if(TextUtils.isEmpty(accountInfo)){
+            return null;
+        }
+        try {
+            JSONObject accountJson=new JSONObject(accountInfo);
+            if(accountJson==null){
+                return null;
+            }
+            String liquidBalanceStrRaw=accountJson.getString("core_liquid_balance");
+            String liquidBalanceStr=liquidBalanceStrRaw.substring(0,liquidBalanceStrRaw.length()-4);
+            double liquidBalance=Double.parseDouble(liquidBalanceStr);
+            int ramRaw=accountJson.getInt("ram_quota");
+            double netWeight=accountJson.getDouble("net_weight");
+            double cpuWeight=accountJson.getDouble("cpu_weight");
+            netWeight=netWeight/10000;
+            cpuWeight=cpuWeight/10000;
+            float ramPrice=getRawRamPrice();
+            double ramEos=ramPrice*ramRaw;
+            double eos=liquidBalance+netWeight+cpuWeight+ramEos;
+            String priceStr=getPriceInfo(context);
+            float price=getRawEosPrice(priceStr);
+            double balance= eos*price;
+            Log.i(TAG,"getAccountProperty,account:"+account+",eos:"+eos+",price:"+price+",balance:"+balance);
+            /*
+            Balance of %1$s:%2$s\n
+        Details:\n
+            Balance of %1$s:%2$f\n
+        Details:\n
+            liquid eos:%3$f\n
+            ram:%4$f Byte\n
+            cpu:%5$f\n
+            net:%6$f\n
+            price:%7$f
+             */
+            String result=context.getString(R.string.account_balance_info,account,balance,liquidBalance,ramRaw,cpuWeight,netWeight,eos,price);
+            return result;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /*result is by byte*/
+    private static float getRawRamPrice(){
+        /*It's like:
+        RAM price:xxxx\n\nOriginal data:"+jsonStr
+         */
+        String priceStr=getRamPrice();
+        priceStr=priceStr.substring(10);
+        int pos=priceStr.indexOf("\n");
+        priceStr=priceStr.substring(0,pos);
+        float price=Float.parseFloat(priceStr);
+        price=price/1024;
+        return price;
+    }
+
+    private static float getRawEosPrice(String input){
+        /*input is from getPriceInfo, it's like:
+        Get latest trade info from %1$s.\n
+        price of 24h before:%2$s.\n
+        price of now:%3$s. \n
+        highest price:%4$s.\n
+        lowest price:%5$s.\n
+        amount:%6$s.\n
+        volumn:%7$s.
+         */
+        int pos=input.indexOf("price of now:");
+        input=input.substring(pos+"price of now:".length());
+        pos=input.indexOf(". \n");
+        input=input.substring(0,pos);
+        float price=Float.parseFloat(input);
+        return price;
     }
 }

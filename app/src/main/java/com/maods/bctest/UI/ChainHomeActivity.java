@@ -47,6 +47,7 @@ public class ChainHomeActivity extends Activity {
     private static final String[] BTC_actions=new String[]{};
     private static final String[] ETH_actions=new String[]{};
     private static final String[] EOS_actions=new String[]{
+            EOSOperations.FUNCTION_MY_PROPERTY,
             EOSOperations.FUNCTION_LIST_WALLETS,
             EOSOperations.ACTION_GET_RAM_PRICE,
             EOSOperations.ACTION_BUYRAM,
@@ -230,6 +231,7 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.ACTION_GET_TRANSACTION:
                     case EOSOperations.ACTION_BIN_TO_JSON:
                     case EOSOperations.FUNCTION_GET_PRICE:
+                    case EOSOperations.FUNCTION_MY_PROPERTY:
                         startEOSGetInfo(mTargetActions[position]);
                         break;
                     case EOSOperations.FUNCTION_LIST_WALLETS:
