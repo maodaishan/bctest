@@ -70,7 +70,10 @@ public class EOSInfoActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
-
+        long time=System.currentTimeMillis();
+        Log.i(TAG,"time:"+time);
+        long timeDiff=time-Long.parseLong("1536072384012");
+        Log.i(TAG,"timeDiff:"+timeDiff+",it's "+timeDiff/1000/3600+" hours");
         mAction=getIntent().getStringExtra(GlobalConstants.EXTRA_KEY_ACTION);
 
         setContentView(R.layout.eos_info);
@@ -444,6 +447,9 @@ public class EOSInfoActivity extends Activity {
                         break;
                     case EOSOperations.ACTION_BIN_TO_JSON:
                         mContent=EOSOperations.binToJson(mAccountName,mActionOfBin,mBinargs);
+                        break;
+                    case EOSOperations.FUNCTION_GET_PRICE:
+                        mContent=EOSOperations.getPriceInfo(EOSInfoActivity.this);
                         break;
                     default:
                         mContent=null;

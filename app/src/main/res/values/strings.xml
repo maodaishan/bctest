@@ -58,4 +58,5 @@
     <string name="transaction_id">Transaction id</string>
     <string name="action">Action</string>
     <string name="binargs">Binargs</string>
+    <string name="price_info">Get latest trade from %1$s ,amount:%2$s,price:%3$s.</string>
 </resources>

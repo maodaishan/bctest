@@ -73,6 +73,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String FUNCTION_GET_AVAILABLE_BP_API_SERVER="get_available_api_server";
     public static final String FUNCTION_CREATE_WALLET="create_wallet";
     public static final String FUNCTION_LIST_WALLETS="list_wallets";
+    public static final String FUNCTION_GET_PRICE="get_price";
 
     public static final String ACTOR="actor";
     public static final String PERMISSION="permission";
@@ -107,6 +108,11 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String EOSIO_TOKEN="eosio.token";
     private static final String EOSIO="eosio";
     private static final int TX_EXPIRATION_IN_MILSEC = 30000;
+
+    //trade related
+    private static final String HUOBI="huobi";
+    private static final String HUOBI_URL_MARKET = "https://api.huobipro.com/market/";
+    private static final String EOSUSDT="eosusdt";
 
     @Override
     public List<String> getServerNode(){
@@ -995,6 +1001,49 @@ public class EOSOperations implements ChainCommonOperations {
             if(!TextUtils.isEmpty(content)){
                 return content;
             }
+        }
+        return null;
+    }
+
+    /**
+     * Get price, and other informations.
+     * Info are get from Huobi.
+     * Reference:https://github.com/huobiapi/API_Docs/wiki/REST_api_reference
+     * Return:
+     * Get price and information from :huobi
+     *
+     */
+    public static String getPriceInfo(Context context){
+        StringBuilder sbUrl=new StringBuilder();
+        StringBuilder sbResult=new StringBuilder();
+        sbUrl.append(HUOBI_URL_MARKET);
+        sbUrl.append("trade?symbol=");
+        sbUrl.append(EOSUSDT);
+        String priceJsonStr=GlobalUtils.getContentFromUrl(sbUrl.toString());
+        if(TextUtils.isEmpty(priceJsonStr)){
+            return null;
+        }
+        try {
+            JSONObject tradePrice=new JSONObject(priceJsonStr);
+            JSONObject tick=tradePrice.getJSONObject("tick");
+            if(tick==null){
+                return null;
+            }
+            JSONArray data=tick.getJSONArray("data");
+            if(data==null || data.length()==0){
+                return null;
+            }
+            JSONObject tradeItem=data.getJSONObject(0);
+            if(tradeItem==null){
+                return null;
+            }
+            String amount=tradeItem.getString("amount");
+            String price=tradeItem.getString("price");
+            String priceStr=context.getString(R.string.price_info,HUOBI,amount,price);
+            sbResult.append(priceStr);
+            return sbResult.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         return null;
     }
