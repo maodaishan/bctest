@@ -59,4 +59,11 @@
     <string name="action">Action</string>
     <string name="binargs">Binargs</string>
     <string name="price_info">Get latest trade from %1$s ,amount:%2$s,price:%3$s.</string>
+    <string name="price_info_detail">Get latest trade info from %1$s.\n
+        price of 24h before:%2$s.\n
+        price of now:%3$s. \n
+        highest price:%4$s.\n
+        lowest price:%5$s.\n
+        amount:%6$s.\n
+        volumn:%7$s.</string>
 </resources>

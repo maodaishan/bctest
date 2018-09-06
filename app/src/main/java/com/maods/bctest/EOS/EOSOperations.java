@@ -1015,9 +1015,9 @@ public class EOSOperations implements ChainCommonOperations {
      */
     public static String getPriceInfo(Context context){
         StringBuilder sbUrl=new StringBuilder();
-        StringBuilder sbResult=new StringBuilder();
+        //StringBuilder sbResult=new StringBuilder();
         sbUrl.append(HUOBI_URL_MARKET);
-        sbUrl.append("trade?symbol=");
+        sbUrl.append("detail?symbol=");
         sbUrl.append(EOSUSDT);
         String priceJsonStr=GlobalUtils.getContentFromUrl(sbUrl.toString());
         if(TextUtils.isEmpty(priceJsonStr)){
@@ -1029,7 +1029,22 @@ public class EOSOperations implements ChainCommonOperations {
             if(tick==null){
                 return null;
             }
-            JSONArray data=tick.getJSONArray("data");
+            //all amount traded
+            String amount=tick.getString("amount");
+            //price of 24h before
+            String open=tick.getString("open");
+            //price now
+            String close=tick.getString("close");
+            //highest price
+            String high=tick.getString("high");
+            //lowest price
+            String low=tick.getString("low");
+            //total usdt volume
+            String volume=tick.getString("vol");
+            String result=context.getString(R.string.price_info_detail,HUOBI,open,close,high,low,amount,volume);
+            return result;
+            //below are parsing result from curl https://api.huobipro.com/market/trade?symbol=eosusdt
+            /*JSONArray data=tick.getJSONArray("data");
             if(data==null || data.length()==0){
                 return null;
             }
@@ -1041,7 +1056,7 @@ public class EOSOperations implements ChainCommonOperations {
             String price=tradeItem.getString("price");
             String priceStr=context.getString(R.string.price_info,HUOBI,amount,price);
             sbResult.append(priceStr);
-            return sbResult.toString();
+            return sbResult.toString();*/
         } catch (JSONException e) {
             e.printStackTrace();
         }
