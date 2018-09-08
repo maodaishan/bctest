@@ -41,6 +41,7 @@
     <string name="illegal_ram_input">Illegal ram byte to buy</string>
     <string name="account_sell_ram">Account wish to sell ram</string>
     <string name="bytes_to_sell">How much RAM to sell (by Bytes)</string>
+    <string name="bytes_to_sell_kb">How much RAM to sell (by kB)</string>
     <string name="account_pay_for_res">Account pay for cpu/net</string>
     <string name="account_receive_res">Account receive cpu/net</string>
     <string name="eos_for_cpu">How much EOS for CPU (only input integer,ex. "1")</string>
@@ -74,4 +75,25 @@
             net:%6$f\n
             total eos:%7$f\n
             price:%8$f</string>
+    <string name="ram_trade_notice">Will query ram price every x minutes you entered.\n
+        If it meets your designated price, will execute it.\n
+        Attention:this task is in RAM, so if this app closed, it will not be executed anymore.</string>
+    <string name="buy_ram">Buy RAM</string>
+    <string name="sell_ram">Sell RAM</string>
+    <string name="buy_ram_eos_amount">How many EOS to pay,must be xx.xxxx,ex. "10.0000",or it will fail.</string>
+    <string name="buy_ram_price_hint">Price you wish to buy RAM.(/kB)</string>
+    <string name="sell_ram_price_hint">Price you wish to sell RAM.(/kB)</string>
+    <string name="ram_trade_retry_time_hint">How long time wish to retry(int,/minutes)</string>
+    <string name="buy_it">Buy it</string>
+    <string name="sell_it">Sell it</string>
+    <string name="pending_buy_ram">Pending buy RAM tasks:</string>
+    <string name="pending_sell_ram">Pending sell RAM tasks:</string>
+    <string name="check_balance">Check balance</string>
+    <string name="check_balance_result">Liquid EOS:%1$f\n
+        RAM:%2$f kB\n
+        CPU:%3$f\n
+        NET:%4$f</string>
+    <string name="check_time_alert">Need >0, and be integer, will try get ram price every x minutes. </string>
+    <string name="buy_task_info">Trying to buy %1$f EOS RAM on price %2$f EOS/kB,will retry every %3$d minutes</string>
+    <string name="sell_task_info">Trying to sell %1$f kBytes RAM on price %2$f EOS/kB,will retry every %3$d minutes.</string>
 </resources>

@@ -101,7 +101,7 @@ public class EOSInfoActivity extends Activity {
                 ||mAction.equals(EOSOperations.FUNCTION_CREATE_WALLET)
                 ||mAction.equals(EOSOperations.ACTION_JSON_TO_BIN)
                 ||mAction.equals(EOSOperations.ACTION_TRANSFER)
-                ||mAction.equals(EOSOperations.ACTION_BUYRAM)
+                ||mAction.equals(EOSOperations.ACTION_BUYRAMBYTES)
                 ||mAction.equals(EOSOperations.ACTION_SELLRAM)
                 ||mAction.equals(EOSOperations.ACTION_DELEGATEBW)
                 ||mAction.equals(EOSOperations.ACTION_UNDELEGATEBW)
@@ -157,7 +157,7 @@ public class EOSInfoActivity extends Activity {
                     mEdit4.setHint(R.string.memo);
                     mEdit4.setVisibility(View.VISIBLE);
                     break;
-                case EOSOperations.ACTION_BUYRAM:
+                case EOSOperations.ACTION_BUYRAMBYTES:
                     hint=R.string.account_pay_for_ram;
                     mEdit1.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
                     mEdit2.setHint(R.string.account_receive_ram);
@@ -296,7 +296,7 @@ public class EOSInfoActivity extends Activity {
                     startAction();
                 }
                 break;
-            case EOSOperations.ACTION_BUYRAM:
+            case EOSOperations.ACTION_BUYRAMBYTES:
                 mAccountName=mEdit1.getText().toString();
                 mAccount2Name=mEdit2.getText().toString();
                 mRamBytes=Integer.valueOf(mEdit3.getText().toString());
@@ -426,8 +426,8 @@ public class EOSInfoActivity extends Activity {
                     case EOSOperations.ACTION_TRANSFER:
                         mContent=EOSOperations.transfer(EOSInfoActivity.this,mAccountName,mAccount2Name,mAmount,mMemo);
                         break;
-                    case EOSOperations.ACTION_BUYRAM:
-                        mContent=EOSOperations.buyRam(EOSInfoActivity.this,mAccountName,mAccount2Name,mRamBytes);
+                    case EOSOperations.ACTION_BUYRAMBYTES:
+                        mContent=EOSOperations.buyRamBytes(EOSInfoActivity.this,mAccountName,mAccount2Name,mRamBytes);
                         break;
                     case EOSOperations.ACTION_SELLRAM:
                         mContent=EOSOperations.sellRam(EOSInfoActivity.this,mAccountName,mRamBytes);

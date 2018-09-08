@@ -39,6 +39,9 @@
         <activity android:name=".UI.EOSBrowser"
             android:label="Manage wallet"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".UI.EOSRamTradeActivity"
+            android:label="Manage wallet"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
     </application>
 

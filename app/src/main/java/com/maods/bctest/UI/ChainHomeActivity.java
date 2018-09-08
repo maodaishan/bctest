@@ -50,7 +50,8 @@ public class ChainHomeActivity extends Activity {
             EOSOperations.FUNCTION_MY_PROPERTY,
             EOSOperations.FUNCTION_LIST_WALLETS,
             EOSOperations.ACTION_GET_RAM_PRICE,
-            EOSOperations.ACTION_BUYRAM,
+            EOSOperations.FUNCTION_RAM_TRADE_DEFINE_PRICE,
+            EOSOperations.ACTION_BUYRAMBYTES,
             EOSOperations.ACTION_SELLRAM,
             EOSOperations.ACTION_DELEGATEBW,
             EOSOperations.ACTION_UNDELEGATEBW,
@@ -223,7 +224,7 @@ public class ChainHomeActivity extends Activity {
                     case EOSOperations.FUNCTION_CREATE_WALLET:
                     case EOSOperations.ACTION_JSON_TO_BIN:
                     case EOSOperations.ACTION_TRANSFER:
-                    case EOSOperations.ACTION_BUYRAM:
+                    case EOSOperations.ACTION_BUYRAMBYTES:
                     case EOSOperations.ACTION_SELLRAM:
                     case EOSOperations.ACTION_DELEGATEBW:
                     case EOSOperations.ACTION_UNDELEGATEBW:
@@ -239,6 +240,9 @@ public class ChainHomeActivity extends Activity {
                         break;
                     case EOSOperations.FUNCTION_BROWSER:
                         startEOSBrowser();
+                        break;
+                    case EOSOperations.FUNCTION_RAM_TRADE_DEFINE_PRICE:
+                        startRamTrade();
                         break;
                     default:
                         break;
@@ -267,4 +271,11 @@ public class ChainHomeActivity extends Activity {
         intent.setClass(this,EOSBrowser.class);
         startActivity(intent);
     }
+
+    private void startRamTrade(){
+        Intent intent=new Intent();
+        intent.setClass(this,EOSRamTradeActivity.class);
+        startActivity(intent);
+    }
+
 }

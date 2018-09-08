@@ -62,7 +62,8 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String ACTION_GET_REQUIRED_KEYS="get_required_keys";
     public static final String ACTION_TRANSFER="transfer";
     public static final String ACTION_PUSH_TRANSACTION="push_transaction";
-    public static final String ACTION_BUYRAM="buyrambytes";
+    public static final String ACTION_BUYRAMBYTES="buyrambytes";
+    public static final String ACTION_BUYRAMEOS="buyram";
     public static final String ACTION_SELLRAM="sellram";
     public static final String ACTION_DELEGATEBW="delegatebw";
     public static final String ACTION_UNDELEGATEBW="undelegatebw";
@@ -74,7 +75,8 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String FUNCTION_CREATE_WALLET="create_wallet";
     public static final String FUNCTION_LIST_WALLETS="list_wallets";
     public static final String FUNCTION_GET_PRICE="get_price(neet climb over the great wall in China)";
-    public static final String FUNCTION_MY_PROPERTY="check_my_property(neet climb over the great wall in China)";
+    public static final String FUNCTION_MY_PROPERTY="check_my_property (neet climb over the great wall in China)";
+    public static final String FUNCTION_RAM_TRADE_DEFINE_PRICE="ram trade with designated price";
 
     public static final String ACTOR="actor";
     public static final String PERMISSION="permission";
@@ -805,12 +807,12 @@ public class EOSOperations implements ChainCommonOperations {
      * @param bytes
      * @return
      */
-    public static String buyRam(Context context,String payer,String receiver,int bytes){
+    public static String buyRamBytes(Context context,String payer,String receiver,int bytes){
         HashMap<String,String>params=new HashMap<String,String>();
         params.put(PARAM_PAYER,payer);
         params.put(PARAM_RECEIVER,receiver);
         params.put(PARAM_BYTES,String.valueOf(bytes));
-        String bin=jsonToBin(true,EOSIO,ACTION_BUYRAM,params);
+        String bin=jsonToBin(true,EOSIO,ACTION_BUYRAMBYTES,params);
         if(TextUtils.isEmpty(bin)){
             return null;
         }
@@ -825,11 +827,46 @@ public class EOSOperations implements ChainCommonOperations {
         auth.put(ACTOR,payer);
         auth.put(PERMISSION,ACTIVE);
         auths.add(auth);
-        Action action=new Action(EOSIO,ACTION_BUYRAM,bin,auths);
+        Action action=new Action(EOSIO,ACTION_BUYRAMBYTES,bin,auths);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
         String result=pushTransaction(context,true,actions,null);
         Log.i(TAG,"result of buyrambytes,payer:"+payer+",receiver:"+receiver+",bytes:"+bytes+",result:"+result);
+        return result;
+    }
+
+    /**
+     * Don't call from UI thread.
+     * @param payer
+     * @param receiver
+     * @param eos
+     * @return
+     */
+    public static String buyRamEos(Context context,String payer,String receiver,float eos){
+        HashMap<String,String>params=new HashMap<String,String>();
+        params.put(PARAM_PAYER,payer);
+        params.put(PARAM_RECEIVER,receiver);
+        params.put("quant",String.valueOf(eos)+" EOS");
+        String bin=jsonToBin(true,EOSIO,ACTION_BUYRAMEOS,params);
+        if(TextUtils.isEmpty(bin)){
+            return null;
+        }
+        try {
+            JSONObject binJson=new JSONObject(bin);
+            bin=binJson.getString("binargs");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Map<String,String>>auths=new ArrayList<Map<String,String>>();
+        HashMap<String,String>auth=new HashMap<String,String>();
+        auth.put(ACTOR,payer);
+        auth.put(PERMISSION,ACTIVE);
+        auths.add(auth);
+        Action action=new Action(EOSIO,ACTION_BUYRAMEOS,bin,auths);
+        ArrayList<Action> actions=new ArrayList<Action>();
+        actions.add(action);
+        String result=pushTransaction(context,true,actions,null);
+        Log.i(TAG,"result of buyram,payer:"+payer+",receiver:"+receiver+",quant:"+eos+",result:"+result);
         return result;
     }
 
@@ -1109,7 +1146,7 @@ public class EOSOperations implements ChainCommonOperations {
     }
 
     /*result is by byte*/
-    private static float getRawRamPrice(){
+    public static float getRawRamPrice(){
         /*It's like:
         RAM price:xxxx\n\nOriginal data:"+jsonStr
          */
