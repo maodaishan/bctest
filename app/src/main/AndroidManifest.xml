@@ -10,6 +10,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:persistent="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -42,7 +43,10 @@
         <activity android:name=".UI.EOSRamTradeActivity"
             android:label="Manage wallet"
             android:theme="@style/AppTheme.NoActionBar"/>
-
+        <!--This service did nothing, just keep app alive when executing "RAM trade on desinated price"-->
+        <service android:name=".EOS.ForgroundSevice"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 
 </manifest>

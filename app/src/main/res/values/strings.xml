@@ -94,6 +94,7 @@
         CPU:%3$f\n
         NET:%4$f</string>
     <string name="check_time_alert">Need >0, and be integer, will try get ram price every x minutes. </string>
-    <string name="buy_task_info">Trying to buy %1$f EOS RAM on price %2$f EOS/kB,will retry every %3$d minutes</string>
+    <string name="buy_task_info">Trying to buy %1$s EOS RAM on price %2$f EOS/kB,will retry every %3$d minutes</string>
     <string name="sell_task_info">Trying to sell %1$f kBytes RAM on price %2$f EOS/kB,will retry every %3$d minutes.</string>
+    <string name="get_price_fail_info">Failed to get price from Huobi,If you are running this in China, you need to pass the Great Wall.</string>
 </resources>

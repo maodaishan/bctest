@@ -1,6 +1,7 @@
 package com.maods.bctest.UI;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.maods.bctest.EOS.EOSOperations;
 import com.maods.bctest.EOS.EOSUtils;
+import com.maods.bctest.EOS.ForgroundSevice;
 import com.maods.bctest.GlobalUtils;
 import com.maods.bctest.R;
 
@@ -49,7 +51,7 @@ public class EOSRamTradeActivity extends Activity {
 
     private String mBuyAccountPay;
     private String mBuyAccountRcv;
-    private float mBuyEosAmount;//by EOS,should be "xx.xxxx"
+    private String mBuyEosAmount;//by EOS,should be "xx.xxxx"
     private float mBuyPrice;
     private int mBuyTime;
     private String mSellAccount;
@@ -66,6 +68,10 @@ public class EOSRamTradeActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
+
+        //start a foreground service prevent be killed.because this needs continues retry price.
+        Intent intent=new Intent(this, ForgroundSevice.class);
+        startService(intent);
 
         setContentView(R.layout.ram_trade);
         //check balance
@@ -99,6 +105,7 @@ public class EOSRamTradeActivity extends Activity {
             public void onClick(View v) {
                 mHasBuyTask=false;
                 mBuyTimer.cancel();
+                mBuyTimer=null;
                 updateBuyTaskInfoView();
             }
         });
@@ -122,13 +129,12 @@ public class EOSRamTradeActivity extends Activity {
             public void onClick(View v) {
                 mHasSellTask=false;
                 mSellTimer.cancel();
+                mSellTimer=null;
                 updateSellTaskInfoView();
             }
         });
 
-        mBuyTimer=new Timer();
         mBuyTimerTask=new BuyTimerTask();
-        mSellTimer=new Timer();
         mSellTimerTask=new SellTimerTask();
     }
 
@@ -181,7 +187,7 @@ public class EOSRamTradeActivity extends Activity {
     private void onBuyBtnClicked(){
         mBuyAccountPay=mBuyAccountPayView.getText().toString();
         mBuyAccountRcv=mBuyAccountReceiveView.getText().toString();
-        mBuyEosAmount=Float.parseFloat(mBuyEosAmountView.getText().toString());
+        mBuyEosAmount=mBuyEosAmountView.getText().toString();
         mBuyPrice=Float.parseFloat(mBuyPriceView.getText().toString());
         mBuyTime=Integer.parseInt(mBuyTimeView.getText().toString());
         if(!EOSUtils.isAccountNameLeagle(mBuyAccountPay) || !EOSUtils.isAccountNameLeagle(mBuyAccountRcv)){
@@ -189,15 +195,16 @@ public class EOSRamTradeActivity extends Activity {
         }else if(mBuyTime<=0){
             GlobalUtils.showAlertMsg(this,R.string.check_time_alert);
         }else{
+            if(mHasBuyTask){
+                mBuyTimer.cancel();
+                mBuyTimer=null;
+            }
             mHasBuyTask=true;
             mCancelBuyBtnView.setEnabled(true);
-            scheduleBuyRam();
+            mBuyTimer=new Timer();
+            mBuyTimer.schedule(mBuyTimerTask,0,mBuyTime*60*1000);
             updateBuyTaskInfoView();
         }
-    }
-
-    private void scheduleBuyRam(){
-        mBuyTimer.schedule(mBuyTimerTask,0,mBuyTime*60*1000);
     }
 
     /**
@@ -217,7 +224,7 @@ public class EOSRamTradeActivity extends Activity {
         Log.i(TAG,"ram price per kByte:"+price);
         if(price<=mBuyPrice) {
             buyResult=EOSOperations.buyRamEos(this, mBuyAccountPay, mBuyAccountRcv, mBuyEosAmount);
-            if(!TextUtils.isEmpty(buyResult)){
+            if(!TextUtils.isEmpty(buyResult) && !buyResult.startsWith("err")){
                 mHasBuyTask=false;
                 //mCancelBuyBtnView.setEnabled(false);
                 return true;
@@ -274,16 +281,18 @@ public class EOSRamTradeActivity extends Activity {
         if(!EOSUtils.isAccountNameLeagle(mSellAccount)){
             GlobalUtils.showAlertMsg(this,R.string.eos_account_length_err);
         }else{
+            if(mHasSellTask){
+                mSellTimer.cancel();
+                mSellTimer=null;
+            }
+            mSellTimer=new Timer();
+            mSellTimer.schedule(mSellTimerTask,0,(mSellTime*60*1000));
             mHasSellTask=true;
             mCancelSellBtnView.setEnabled(true);
-            scheduleSellRam();
             updateSellTaskInfoView();
         }
     }
 
-    private void scheduleSellRam(){
-        mSellTimer.schedule(mSellTimerTask,0,mSellTime*60*1000);
-    }
 
     /**
      * true: no sell task, or price is ok, and finished sell action
@@ -302,7 +311,7 @@ public class EOSRamTradeActivity extends Activity {
         Log.i(TAG,"ram price per kByte:"+price);
         if(price>=mSellPrice) {
             sellResult=EOSOperations.sellRam(this, mSellAccount, (int)mSellAmount*1024);
-            if(!TextUtils.isEmpty(sellResult)){
+            if(!TextUtils.isEmpty(sellResult) && !sellResult.startsWith("err")){
                 mHasSellTask=false;
                 //mCancelSellBtnView.setEnabled(false);
                 return true;

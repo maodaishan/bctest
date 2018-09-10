@@ -842,11 +842,11 @@ public class EOSOperations implements ChainCommonOperations {
      * @param eos
      * @return
      */
-    public static String buyRamEos(Context context,String payer,String receiver,float eos){
+    public static String buyRamEos(Context context,String payer,String receiver,String eos){
         HashMap<String,String>params=new HashMap<String,String>();
         params.put(PARAM_PAYER,payer);
         params.put(PARAM_RECEIVER,receiver);
-        params.put("quant",String.valueOf(eos)+" EOS");
+        params.put("quant",eos+" EOS");
         String bin=jsonToBin(true,EOSIO,ACTION_BUYRAMEOS,params);
         if(TextUtils.isEmpty(bin)){
             return null;
@@ -1123,6 +1123,9 @@ public class EOSOperations implements ChainCommonOperations {
             double ramEos=ramPrice*ramRaw;
             double eos=liquidBalance+netWeight+cpuWeight+ramEos;
             String priceStr=getPriceInfo(context);
+            if(TextUtils.isEmpty(priceStr)){
+                return context.getString(R.string.get_price_fail_info);
+            }
             float price=getRawEosPrice(priceStr);
             double balance= eos*price;
             Log.i(TAG,"getAccountProperty,account:"+account+",eos:"+eos+",price:"+price+",balance:"+balance);
