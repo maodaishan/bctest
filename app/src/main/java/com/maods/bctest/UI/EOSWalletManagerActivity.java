@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -17,7 +16,6 @@ import com.maods.bctest.GlobalConstants;
 import com.maods.bctest.GlobalUtils;
 import com.maods.bctest.R;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +24,7 @@ import java.util.Set;
 
 import io.plactal.eoscommander.crypto.ec.EosPrivateKey;
 import io.plactal.eoscommander.crypto.ec.EosPublicKey;
-import io.plactal.eoscommander.data.remote.model.types.EosByteReader;
 import io.plactal.eoscommander.data.remote.model.types.EosByteWriter;
-import io.plactal.eoscommander.data.remote.model.types.EosType;
 import io.plactal.eoscommander.data.wallet.EosWallet;
 import io.plactal.eoscommander.data.wallet.EosWalletManager;
 
@@ -57,7 +53,6 @@ public class EOSWalletManagerActivity extends Activity {
 
     public void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
-
         setContentView(R.layout.manage_wallet);
         mContainerView=(LinearLayout)findViewById(R.id.container);
         mTitleView=(TextView)findViewById(R.id.title);
@@ -159,9 +154,9 @@ public class EOSWalletManagerActivity extends Activity {
             }
             mAdapter=new SimpleAdapter(this,
                     mListItems,
-                    android.R.layout.simple_list_item_2,
+                    R.layout.list_item_2,
                     new String[]{PRIV,PUB},
-                    new int[]{android.R.id.text1,android.R.id.text2});
+                    new int[]{R.id.text1,R.id.text2});
             mListView.setAdapter(mAdapter);
             mListView.invalidate();
         }

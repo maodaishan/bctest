@@ -117,6 +117,9 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String HUOBI_URL_MARKET = "https://api.huobipro.com/market/";
     private static final String EOSUSDT="eosusdt";
 
+    private static Object sSync=new Object();
+    private static int sRpcUrlTestCount=0;
+    private static ArrayList<String> sRpcUrlList=new ArrayList<String>();
     @Override
     public List<String> getServerNode(){
         return EOSUtils.getAvailableServers();
@@ -360,7 +363,6 @@ public class EOSOperations implements ChainCommonOperations {
      * TODO: we need a seed server, how to get it? may need centralized way now.
      */
     public static String getAvailableAPIServer(){
-        StringBuilder result=new StringBuilder();
         List<String>servers=EOSUtils.getAvailableServers();
         if(servers.size()==0){
             return null;
@@ -377,51 +379,86 @@ public class EOSOperations implements ChainCommonOperations {
             if(TextUtils.isEmpty(content)){
                 continue;
             }
+            ArrayList<String>bpUrl=new ArrayList<String>();
             try {
                 //get url for each BP
-                ArrayList<String>bpUrl=new ArrayList<String>();
                 JSONObject rawBP=new JSONObject(content);
                 JSONArray bps=rawBP.getJSONArray("rows");
                 int size=bps.length();
                 for(int bpIndex=0;bpIndex<size;bpIndex++){
                     JSONObject bp=(JSONObject)bps.getJSONObject(bpIndex);
-                    bpUrl.add(bp.getString("url"));
-                }
-                Log.i(TAG,"bpUrl.size:"+bpUrl.size());
-                if(bpUrl.size()>0){
-                    for (int j=0;j<bpUrl.size();j++){
-                        Log.i(TAG,"bpUrl("+j+")="+bpUrl.get(j).toString());
-                    }
-                }
-                if(bpUrl.size()==0){
-                    return null;
-                }
-                //get api server address from each bp,and test them, for each available, add to the result.
-                for(String bp:bpUrl){
-                    String bpInfo=bp+"/bp.json";
-                    String infoStr=GlobalUtils.getContentFromUrl(bpInfo);
-                    Log.i(TAG,"json from "+bp+" is:"+infoStr );
-                    if(TextUtils.isEmpty(infoStr)){
-                        continue;
-                    }
-                    JSONObject infoJson=new JSONObject(infoStr);
-                    JSONArray nodes=infoJson.getJSONArray("nodes");
-                    Log.i(TAG,"nodes:"+nodes);
-                    if(nodes==null){
-                        continue;
-                    }
-                    JSONObject node=nodes.getJSONObject(0);
-                    String apiUrl=node.optString("api_endpoint");
-                    Log.i(TAG,"api_endpoint:"+apiUrl);
-                    if(TextUtils.isEmpty(apiUrl)){
-                        continue;
-                    }
-                    if(testAPIServerAvailable(apiUrl)){
-                        result.append(apiUrl+",");
+                    String urlOfBp=bp.getString("url");
+                    if(!TextUtils.isEmpty(urlOfBp)){
+                        bpUrl.add(urlOfBp);
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+            }
+            Log.i(TAG,"bpUrl.size:"+bpUrl.size());
+            if(bpUrl.size()>0){
+                for (int j=0;j<bpUrl.size();j++){
+                    Log.i(TAG,"bpUrl("+j+")="+bpUrl.get(j).toString());
+                }
+            }
+            if(bpUrl.size()==0){
+                return null;
+            }
+            //get api server address from each bp,and test them, for each available, add to the result.
+            final int serverCount=bpUrl.size();
+            sRpcUrlTestCount=0;
+            sRpcUrlList.clear();
+            for(int index=0;index<serverCount;index++){
+                final String bp=bpUrl.get(index);
+                Log.i(TAG,"getting bp,index="+index);
+                Thread t=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String bpInfo=bp+"/bp.json";
+                        String infoStr=GlobalUtils.getContentFromUrl(bpInfo);
+                        Log.i(TAG,"json from "+bp+" is:"+infoStr );
+                        if(!TextUtils.isEmpty(infoStr)) {
+                            try {
+                                JSONObject infoJson = new JSONObject(infoStr);
+                                JSONArray nodes = infoJson.getJSONArray("nodes");
+                                Log.i(TAG, "nodes:" + nodes);
+                                if (nodes != null) {
+                                    JSONObject node = nodes.getJSONObject(0);
+                                    String apiUrl = node.optString("api_endpoint");
+                                    Log.i(TAG, "api_endpoint:" + apiUrl);
+                                    if (!TextUtils.isEmpty(apiUrl)) {
+                                        if (testAPIServerAvailable(apiUrl)) {
+                                            synchronized(sRpcUrlList){
+                                                sRpcUrlList.add(apiUrl);
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                Log.e(TAG, e.toString());
+                            }
+                        }
+                        synchronized (sSync){
+                            sRpcUrlTestCount++;
+                            Log.i(TAG,"sRpcUrlTestCount:"+sRpcUrlTestCount);
+                            if(sRpcUrlTestCount>=serverCount){
+                                sSync.notify();
+                            }
+                        }
+                    }
+                });
+                t.start();
+            }
+            try {
+                synchronized (sSync) {
+                    sSync.wait();
+                }
+            }catch(InterruptedException e){
+                Log.e(TAG,e.toString());
+            }
+            StringBuilder result=new StringBuilder();
+            for(String urlResult:sRpcUrlList){
+                result.append(urlResult+",");
             }
             return result.toString();
         }
@@ -974,7 +1011,7 @@ public class EOSOperations implements ChainCommonOperations {
         params.put(PARAM_POS,String.valueOf(pos));
         String content=GlobalUtils.postToServer(url,params);
         Log.i(TAG,"geting action from:"+url+"for account: "+accountName+",pos:"+pos+",offset:"+offset+",result:"+content);
-        if(!TextUtils.isEmpty(content)){
+        if(!TextUtils.isEmpty(content) && !content.startsWith("err:")){
             return content;
         }
         return null;

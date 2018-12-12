@@ -309,8 +309,8 @@ public class EOSBrowser extends Activity {
                     mAlertDialog.dismiss();
                     mAlertDialog=null;
                 }
-                mResultView.setText(mExecuteResult);
-                mResultView.invalidate();
+                mActionInfo.setText(mExecuteResult);
+                mActionInfo.invalidate();
             }
         });
     }
