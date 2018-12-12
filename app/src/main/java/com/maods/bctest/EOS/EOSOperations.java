@@ -427,9 +427,11 @@ public class EOSOperations implements ChainCommonOperations {
                                     String apiUrl = node.optString("api_endpoint");
                                     Log.i(TAG, "api_endpoint:" + apiUrl);
                                     if (!TextUtils.isEmpty(apiUrl)) {
+                                        long before=System.currentTimeMillis();
                                         if (testAPIServerAvailable(apiUrl)) {
+                                            long after=System.currentTimeMillis();
                                             synchronized(sRpcUrlList){
-                                                sRpcUrlList.add(apiUrl);
+                                                sRpcUrlList.add(apiUrl+"   "+(after-before)+" ms");
                                             }
                                         }
                                     }
