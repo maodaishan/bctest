@@ -1,5 +1,6 @@
 package com.maods.bctest.EOS;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -46,40 +47,44 @@ public class EOSUtils {
     private static Object mServerTestSync=new Object();
     private static boolean sServerTested=false;
     private static List<String> sServerNodes=new ArrayList<String>();
+    private static int sTestedNode=0;
 
 
     //Can't run in UI thread
     public static List<String> getAvailableServers(){
-        synchronized (mServerTestSync){
-            if(sServerTested){
+        synchronized (mServerTestSync) {
+            if (sServerTested) {
                 return sServerNodes;
+            }else{
+                sTestedNode=0;
+                sServerNodes.clear();
             }
-            String target;
-            for(int i=0;i<CANDIDATE_NODES.length;i++){
-                target=CANDIDATE_NODES[i];
-                URL url=null;
-                try {
-                    StringBuilder sb=new StringBuilder(target);
-                    sb.append("/"+VERSION+"/"+API_CHAIN+"/"+EOSOperations.ACTION_GET_INFO);
-                    url=new URL(sb.toString());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                HttpURLConnection httpURLConnection=null;
-                try {
-                    httpURLConnection = (HttpURLConnection) url.openConnection();
-                    if(httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        sServerNodes.add(target);
-                    } else {
-                        Log.d("TAG httpUrlConnection : ",httpURLConnection.getResponseCode() +"");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }finally {
-                    if(httpURLConnection!=null) {
-                        httpURLConnection.disconnect();
+        }
+        for(int i=0;i<CANDIDATE_NODES.length;i++){
+            final String target=CANDIDATE_NODES[i];
+            URL url=null;
+            Thread t=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String result=EOSOperations.getActions(target,"eosio",-1,-1);
+                    if(!TextUtils.isEmpty(result)){
+                        synchronized (mServerTestSync) {
+                            sServerNodes.add(target);
+                            sTestedNode++;
+                            if (sTestedNode >= 5) {
+                                mServerTestSync.notify();
+                            }
+                        }
                     }
                 }
+            });
+            t.start();
+        }
+        synchronized (mServerTestSync){
+            try {
+                mServerTestSync.wait();
+            }catch(InterruptedException e){
+
             }
             sServerTested=true;
         }
@@ -88,7 +93,7 @@ public class EOSUtils {
 
     public static List<String> getTestNetServers(){
         ArrayList<String>result=new ArrayList<String>();
-        result.add("https://jungle.eosio.cr:443");
+        result.add("https://api-kylin.eosasia.one");
         return result;
     }
 

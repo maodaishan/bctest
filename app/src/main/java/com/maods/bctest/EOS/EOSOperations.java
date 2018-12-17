@@ -284,7 +284,7 @@ public class EOSOperations implements ChainCommonOperations {
      * Get Table rows
      * ex. curl http://mainnet.eoscanada.com/v1/chain/get_table_rows -X POST -d {\"code\":\"eosio\",\"scope\":\"eosio\",\"table\":\"rammarket\",\"json\":\"true\"}
      */
-    public static String getTableRows(String accountName,String contractName,String tableName){
+    public static String getTableRows(String scope,String code,String tableName){
         List<String>servers=EOSUtils.getAvailableServers();
         if(servers.size()==0){
             return null;
@@ -295,12 +295,12 @@ public class EOSOperations implements ChainCommonOperations {
             sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_GET_TABLE_ROWS);
             String url=sb.toString();
             HashMap<String,String> params=new HashMap<String,String>();
-            params.put(PARAM_SCOPE,accountName);
-            params.put(PARAM_CODE,contractName);
+            params.put(PARAM_SCOPE,scope);
+            params.put(PARAM_CODE,code);
             params.put(PARAM_TABLE,tableName);
             params.put(PARAM_JSON,RESULT_AS_JSON);
             String content=GlobalUtils.postToServer(url,params);
-            Log.i(TAG,"geting Table rows from:"+url+"for account: "+accountName+",contract:"+contractName+",table:"+tableName+",result:"+content);
+            Log.i(TAG,"geting Table rows from:"+url+"for scope: "+scope+",code:"+code+",table:"+tableName+",result:"+content);
             if(!TextUtils.isEmpty(content)){
                 return content;
             }
@@ -1003,7 +1003,7 @@ public class EOSOperations implements ChainCommonOperations {
      * @param accountName
      * @return
      */
-    private static String getActions(String server,String accountName,int pos,int offset){
+    public static String getActions(String server,String accountName,int pos,int offset){
         StringBuilder sb=new StringBuilder(server);
         sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_HISTORY+"/"+ACTION_GET_ACTIONS);
         String url=sb.toString();
