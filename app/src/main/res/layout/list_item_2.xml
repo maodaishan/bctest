@@ -20,14 +20,14 @@
     android:minHeight="?attr/listPreferredItemHeight"
     android:mode="twoLine">
 
-    <TextView android:id="@id/text1"
+    <TextView android:id="@+id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textIsSelectable="true"/>
 
-    <TextView android:id="@id/text2"
+    <TextView android:id="@+id/text2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/text1"

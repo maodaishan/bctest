@@ -21,7 +21,6 @@ public class EOSUtils {
             "http://api.eosbeijing.one",
             "http://api.oraclechain.io",
             "http://eosapi.nodepacific.com:8888",
-            "http://api.jeda.one",
             "http://api.eosstore.co:6789",
             "http://node2.liquideos.com",
             "http://api.eoseoul.io",

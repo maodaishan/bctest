@@ -380,13 +380,16 @@ public class EOSInfoActivity extends Activity {
             public void run() {
                 switch(mAction){
                     case EOSOperations.ACTION_GET_INFO:
-                        mContent = EOSOperations.getInfo();
+                        mContent = EOSOperations.getInfo(null);
                         break;
                     case EOSOperations.ACTION_GET_PRODUCERS:
                         mContent=EOSOperations.getProducers();
                         break;
                     case EOSOperations.FUNCTION_GET_AVAILABLE_BP_API_SERVER:
-                        mContent=EOSOperations.getAvailableAPIServer();
+                        mContent=EOSOperations.getAvailableAPIServer(false);
+                        break;
+                    case EOSOperations.FUNCTION_GET_AVAILABLE_HISTORY_API_SERVER:
+                        mContent=EOSOperations.getAvailableAPIServer(true);
                         break;
                     case EOSOperations.ACTION_GET_ACCOUNT:
                         mContent=EOSOperations.getAccount(mAccountName);

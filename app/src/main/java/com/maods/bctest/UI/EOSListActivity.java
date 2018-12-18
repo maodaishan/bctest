@@ -68,6 +68,8 @@ public class EOSListActivity extends Activity {
                 handleRememberPswd();
             }
         });
+        handleRememberPswd();
+
         mBtnView=(Button)findViewById(R.id.button);
         mBtnView.setOnClickListener(new View.OnClickListener() {
             @Override

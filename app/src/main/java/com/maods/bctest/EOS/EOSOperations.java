@@ -77,6 +77,7 @@ public class EOSOperations implements ChainCommonOperations {
     public static final String FUNCTION_GET_PRICE="get_price(neet climb over the great wall in China)";
     public static final String FUNCTION_MY_PROPERTY="check_my_property (neet climb over the great wall in China)";
     public static final String FUNCTION_RAM_TRADE_DEFINE_PRICE="ram trade with designated price";
+    public static final String FUNCTION_GET_AVAILABLE_HISTORY_API_SERVER="get_available_history_api_server";
 
     public static final String ACTOR="actor";
     public static final String PERMISSION="permission";
@@ -117,6 +118,7 @@ public class EOSOperations implements ChainCommonOperations {
     private static final String HUOBI_URL_MARKET = "https://api.huobipro.com/market/";
     private static final String EOSUSDT="eosusdt";
 
+    private static final int MAX_API_SERVER_TEST_COUNT=40;
     private static Object sSync=new Object();
     private static int sRpcUrlTestCount=0;
     private static ArrayList<String> sRpcUrlList=new ArrayList<String>();
@@ -130,8 +132,14 @@ public class EOSOperations implements ChainCommonOperations {
      * may return null or empty String if failed
      * will call "http://127.0.0.1:8888/v1/chain/get_info"
      */
-    public static String getInfo(){
-        List<String>servers=EOSUtils.getAvailableServers();
+    public static String getInfo(String serverInput){
+        List<String> servers;
+        if(serverInput==null) {
+            servers= EOSUtils.getAvailableServers();
+        }else{
+            servers=new ArrayList<String>();
+            servers.add(serverInput);
+        }
         if(servers.size()==0){
             return null;
         }
@@ -362,7 +370,7 @@ public class EOSOperations implements ChainCommonOperations {
      * The result is json containing the detail info, extract "api_endpoint" from it.
      * TODO: we need a seed server, how to get it? may need centralized way now.
      */
-    public static String getAvailableAPIServer(){
+    public static String getAvailableAPIServer(boolean test_history){
         List<String>servers=EOSUtils.getAvailableServers();
         if(servers.size()==0){
             return null;
@@ -405,7 +413,11 @@ public class EOSOperations implements ChainCommonOperations {
                 return null;
             }
             //get api server address from each bp,and test them, for each available, add to the result.
-            final int serverCount=bpUrl.size();
+            int count=bpUrl.size();
+            if(count>MAX_API_SERVER_TEST_COUNT){
+                count=MAX_API_SERVER_TEST_COUNT;
+            }
+            final int serverCount=count;
             sRpcUrlTestCount=0;
             sRpcUrlList.clear();
             for(int index=0;index<serverCount;index++){
@@ -428,10 +440,19 @@ public class EOSOperations implements ChainCommonOperations {
                                     Log.i(TAG, "api_endpoint:" + apiUrl);
                                     if (!TextUtils.isEmpty(apiUrl)) {
                                         long before=System.currentTimeMillis();
-                                        if (testAPIServerAvailable(apiUrl)) {
-                                            long after=System.currentTimeMillis();
-                                            synchronized(sRpcUrlList){
-                                                sRpcUrlList.add(apiUrl+"   "+(after-before)+" ms");
+                                        if(!test_history) {
+                                            if (testAPIServerAvailable(apiUrl)) {
+                                                long after = System.currentTimeMillis();
+                                                synchronized (sRpcUrlList) {
+                                                    sRpcUrlList.add(apiUrl + "   " + (after - before) + " ms");
+                                                }
+                                            }
+                                        }else{
+                                            if (testHistoryApiServerAvailable(apiUrl)) {
+                                                long after = System.currentTimeMillis();
+                                                synchronized (sRpcUrlList) {
+                                                    sRpcUrlList.add(apiUrl + "   " + (after - before) + " ms");
+                                                }
                                             }
                                         }
                                     }
@@ -467,6 +488,22 @@ public class EOSOperations implements ChainCommonOperations {
         return null;
     }
 
+    private static boolean testHistoryApiServerAvailable(String server){
+        String testResult=getActions(server,"eosio.token",-1,-1);
+        if(TextUtils.isEmpty(testResult)){
+            return false;
+        }
+        try {
+            JSONObject jsonRaw = new JSONObject(testResult);
+            JSONArray actions=jsonRaw.getJSONArray("actions");
+            if(actions.length()>0){
+                return true;
+            }
+        }catch(JSONException e){
+            Log.i(TAG,e.toString());
+        }
+        return false;
+    }
     /**
      * test available servers.
      * this will call get_actions, to prevent getting nodes not suppling history apis.
@@ -474,7 +511,7 @@ public class EOSOperations implements ChainCommonOperations {
      * @return
      */
     private static boolean testAPIServerAvailable(String server){
-        String testResult=getActions(server,EOSIO,-1,-1);
+        String testResult=getInfo(server);
         if(!TextUtils.isEmpty(testResult)){
             return true;
         }
@@ -703,7 +740,7 @@ public class EOSOperations implements ChainCommonOperations {
             return null;
         }
         //call get_info,to get last_irreversible_block_num
-        String info=getInfo();
+        String info=getInfo(null);
         if(TextUtils.isEmpty(info)){
             return null;
         }
