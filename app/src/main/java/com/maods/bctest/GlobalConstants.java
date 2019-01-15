@@ -14,5 +14,4 @@ public class GlobalConstants {
     public static final String EXTRA_KEY_CHAIN="chain";
     public static final String EXTRA_KEY_ACTION="action";
     public static final String EXTRA_KEY_NAME="name";
-
 }

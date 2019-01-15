@@ -288,7 +288,7 @@ public class EOSInfoActivity extends Activity {
             case EOSOperations.ACTION_TRANSFER:
                 mAccountName=mEdit1.getText().toString();
                 mAccount2Name=mEdit2.getText().toString();
-                mAmount=mEdit3.getText().toString()+" EOS";
+                mAmount=mEdit3.getText().toString();
                 mMemo=mEdit4.getText().toString();
                 if(!EOSUtils.isAccountNameLeagle(mAccountName) || !EOSUtils.isAccountNameLeagle(mAccount2Name)){
                     GlobalUtils.showAlertMsg(this,R.string.eos_account_length_err);
@@ -424,7 +424,7 @@ public class EOSInfoActivity extends Activity {
                         }
                         break;
                     case EOSOperations.ACTION_JSON_TO_BIN:
-                        mContent=EOSOperations.jsonToBin(true,mAccountName,mContractName,mArgs);
+                        mContent=EOSOperations.jsonToBin(mAccountName,mContractName,mArgs);
                         break;
                     case EOSOperations.ACTION_TRANSFER:
                         mContent=EOSOperations.transfer(EOSInfoActivity.this,mAccountName,mAccount2Name,mAmount,mMemo);

@@ -15,8 +15,10 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.maods.bctest.ChainCommonOperations;
@@ -29,7 +31,9 @@ import com.maods.bctest.R;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.plactal.eoscommander.data.wallet.EosWallet;
 import io.plactal.eoscommander.data.wallet.EosWalletManager;
@@ -84,6 +88,8 @@ public class ChainHomeActivity extends Activity {
     private TextView mInfoView;
     private ListView mListView;
     private TextView mEmptyView;
+    private TextView mCurrNetView;
+    private Button mChooseNetView;
     private ArrayAdapter<String> mAdapter;
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -94,6 +100,15 @@ public class ChainHomeActivity extends Activity {
         mInfoView=(TextView)findViewById(R.id.info);
         mEmptyView=(TextView)findViewById(R.id.empty);
         mListView=(ListView)findViewById(R.id.list);
+        mCurrNetView=findViewById(R.id.curr_net);
+        mCurrNetView.setText(EOSUtils.getCurrentNet());
+        mChooseNetView=findViewById(R.id.choose_net);
+        mChooseNetView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onChooseNetClicked();
+            }
+        });
 
         Intent intent=getIntent();
         if(intent.hasExtra(GlobalConstants.EXTRA_KEY_CHAIN)) {
@@ -280,4 +295,32 @@ public class ChainHomeActivity extends Activity {
         startActivity(intent);
     }
 
+    private void onChooseNetClicked(){
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setTitle("Choose net willing to operate");
+        View view=View.inflate(this,R.layout.choose_net,null);
+        builder.setView(view);
+        final AlertDialog dialog=builder.create();
+        dialog.show();
+        ListView list=view.findViewById(R.id.list);
+        List<Map<String,String>>netsArray=new ArrayList<Map<String,String>>();
+        final String[] nets=EOSUtils.AVAILABLE_EOS_NETS;
+        for(int i=0;i<nets.length;i++){
+            String net=nets[i];
+            Map<String,String>map=new HashMap<String,String>();
+            map.put("name",net);
+            netsArray.add(map);
+        }
+        SimpleAdapter adapter=new SimpleAdapter(this,netsArray,android.R.layout.simple_list_item_1,new String[]{"name"},new int[]{android.R.id.text1});
+        list.setAdapter(adapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String listItem=nets[i];
+                EOSUtils.setCurrentNet(ChainHomeActivity.this,listItem);
+                mCurrNetView.setText(EOSUtils.getCurrentNet());
+                dialog.dismiss();
+            }
+        });
+    }
 }

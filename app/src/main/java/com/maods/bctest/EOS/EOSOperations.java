@@ -426,7 +426,17 @@ public class EOSOperations implements ChainCommonOperations {
                 Thread t=new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        String bpInfo=bp+"/bp.json";
+                        String bpInfo;
+                        switch(EOSUtils.getCurrentNet()){
+                            case EOSUtils.NET_EOS_BOS_MAIN_NET:
+                                bpInfo=bp+"/bos.json";
+                                break;
+                            case EOSUtils.NET_EOS_MAIN_NET:
+                            case EOSUtils.NET_EOS_KYLIN_TEST_NET:
+                            default:
+                                bpInfo=bp+"bp.json";
+                                break;
+                        }
                         String infoStr=GlobalUtils.getContentFromUrl(bpInfo);
                         Log.i(TAG,"json from "+bp+" is:"+infoStr );
                         if(!TextUtils.isEmpty(infoStr)) {
@@ -554,7 +564,7 @@ public class EOSOperations implements ChainCommonOperations {
         return pswd;
     }
 
-    private static List<String> getServers(boolean mainNet){
+    /*private static List<String> getServers(boolean mainNet){
         List<String>servers;
         if(mainNet){
             servers=EOSUtils.getAvailableServers();
@@ -562,9 +572,9 @@ public class EOSOperations implements ChainCommonOperations {
             servers=EOSUtils.getTestNetServers();
         }
         return servers;
-    }
+    }*/
 
-    public static List<String> getRequiredKeys(boolean mainNet,String transaction,List<String>available_keys){
+    public static List<String> getRequiredKeys(String transaction,List<String>available_keys){
         if(available_keys.size()==0){
             return null;
         }
@@ -579,7 +589,7 @@ public class EOSOperations implements ChainCommonOperations {
         keys.delete(keys.length()-1,keys.length());
         keys.append("]");
         params.put(PARAM_AVAILABLE_KEYS,keys.toString());
-        List<String>servers=getServers(mainNet);
+        List<String>servers=EOSUtils.getAvailableServers();
         if(servers.size()==0 || available_keys==null || available_keys.size()==0){
             return null;
         }
@@ -608,8 +618,8 @@ public class EOSOperations implements ChainCommonOperations {
         return null;
     }
 
-    public static String jsonToBin(boolean mainNet,String contract,String action,String args){
-        List<String>servers=getServers(mainNet);
+    public static String jsonToBin(String contract,String action,String args){
+        List<String>servers=EOSUtils.getAvailableServers();
         if(servers.size()==0){
             return null;
         }
@@ -631,9 +641,9 @@ public class EOSOperations implements ChainCommonOperations {
         }
         return null;
     }
-    public static String jsonToBin(boolean mainNet,String contract,String action,Map<String,String>args){
+    public static String jsonToBin(String contract,String action,Map<String,String>args){
         String actionData=packActionData(args);
-        return jsonToBin(mainNet,contract,action,actionData);
+        return jsonToBin(contract,action,actionData);
     }
 
     /**
@@ -666,7 +676,7 @@ public class EOSOperations implements ChainCommonOperations {
      * eosio.token <= eosio.token::transfer        {"from":"useraaaaaaaa","to":"useraaaaaaac","quantity":"1.0000 SYS","memo":"hello world"}
      * @param from
      * @param to
-     * @param amount
+     * @param amount,should just be numbers, without " EOS"
      * @param memo
      * @return
      */
@@ -674,9 +684,9 @@ public class EOSOperations implements ChainCommonOperations {
         HashMap<String,String>params=new HashMap<String,String>();
         params.put(PARAM_FROM,from);
         params.put(PARAM_TO,to);
-        params.put(PARAM_QUANTITY,amount);
+        params.put(PARAM_QUANTITY,amount+" "+EOSUtils.getSysTokenName());
         params.put(PARAM_MEMO,memo);
-        String bin=jsonToBin(true,EOSIO_TOKEN,ACTION_TRANSFER,params);
+        String bin=jsonToBin(EOSIO_TOKEN,ACTION_TRANSFER,params);
         if(TextUtils.isEmpty(bin)){
             return null;
         }
@@ -695,13 +705,13 @@ public class EOSOperations implements ChainCommonOperations {
         Action action=new Action(EOSIO_TOKEN,ACTION_TRANSFER,/*packActionData(params),*/bin,auths);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
-        String result=pushTransaction(context,true,actions,null);
+        String result=pushTransaction(context,actions,null);
         Log.i(TAG,"result of transfer,from:"+from+",to:"+to+",amount:"+amount+",memo:"+memo+",result:"+result);
         return result;
     }
 
-    public static String executeAction(Context context,boolean mainNet,String account,String contract,Map<String,String>args,List<Map<String,String>>authsInput){
-        String bin=jsonToBin(mainNet,account,contract,args);
+    public static String executeAction(Context context,String account,String contract,Map<String,String>args,List<Map<String,String>>authsInput){
+        String bin=jsonToBin(account,contract,args);
         if(TextUtils.isEmpty(bin)){
             return null;
         }
@@ -714,17 +724,16 @@ public class EOSOperations implements ChainCommonOperations {
         Action action=new Action(account,contract,/*packActionData(params),*/bin,authsInput);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
-        String result=pushTransaction(context,true,actions,null);
+        String result=pushTransaction(context,actions,null);
         Log.i(TAG,"result of executeAction,account:"+account+",contract:"+contract+",args:"+args+",authsInput:"+authsInput+",result:"+result);
         return result;
     }
     /**
      * Can't be called in UI thread.
      * This's trying to push_transaction.
-     * @param mainNet, whether execute on mainnet.
      * @return just the result.
      */
-    public static String pushTransaction(Context context,boolean mainNet,List<Action>actions, String[]pubKeysInput){
+    public static String pushTransaction(Context context,List<Action>actions, String[]pubKeysInput){
         EosWalletManager walletManager=EosWalletManager.getInstance(context);
         List<String>pubKeysAvailable;
         if(pubKeysInput!=null && pubKeysInput.length>0){
@@ -765,7 +774,7 @@ public class EOSOperations implements ChainCommonOperations {
             //Attention: this transaction is just for collect informations, not for send. we'll use eoscommander's SignedTransaction class for push.
             Transaction transaction = new Transaction(expiration, blockNo, refBlockPref,actions);
 
-            List<String>requiredPubKeys=getRequiredKeys(true,transaction.toString(),pubKeysAvailable);
+            List<String>requiredPubKeys=getRequiredKeys(transaction.toString(),pubKeysAvailable);
             if(requiredPubKeys==null){
                 Log.i(TAG,"can't get requiredPubKeys, please check whether wallet is unlock, or input keys are valid");
                 return null;
@@ -839,7 +848,7 @@ public class EOSOperations implements ChainCommonOperations {
             sbSig.delete(sbSig.length()-1,sbSig.length());
             sbSig.append("]");
             params.put("signatures",sbSig.toString());
-            List<String>servers=getServers(mainNet);
+            List<String>servers=EOSUtils.getAvailableServers();
             for(String server:servers){
                 StringBuilder sb=new StringBuilder(server);
                 sb.append("/"+EOSUtils.VERSION+"/"+EOSUtils.API_CHAIN+"/"+ACTION_PUSH_TRANSACTION);
@@ -888,7 +897,7 @@ public class EOSOperations implements ChainCommonOperations {
         params.put(PARAM_PAYER,payer);
         params.put(PARAM_RECEIVER,receiver);
         params.put(PARAM_BYTES,String.valueOf(bytes));
-        String bin=jsonToBin(true,EOSIO,ACTION_BUYRAMBYTES,params);
+        String bin=jsonToBin(EOSIO,ACTION_BUYRAMBYTES,params);
         if(TextUtils.isEmpty(bin)){
             return null;
         }
@@ -906,7 +915,7 @@ public class EOSOperations implements ChainCommonOperations {
         Action action=new Action(EOSIO,ACTION_BUYRAMBYTES,bin,auths);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
-        String result=pushTransaction(context,true,actions,null);
+        String result=pushTransaction(context,actions,null);
         Log.i(TAG,"result of buyrambytes,payer:"+payer+",receiver:"+receiver+",bytes:"+bytes+",result:"+result);
         return result;
     }
@@ -922,8 +931,8 @@ public class EOSOperations implements ChainCommonOperations {
         HashMap<String,String>params=new HashMap<String,String>();
         params.put(PARAM_PAYER,payer);
         params.put(PARAM_RECEIVER,receiver);
-        params.put("quant",eos+" EOS");
-        String bin=jsonToBin(true,EOSIO,ACTION_BUYRAMEOS,params);
+        params.put("quant",eos+" "+EOSUtils.getSysTokenName());
+        String bin=jsonToBin(EOSIO,ACTION_BUYRAMEOS,params);
         if(TextUtils.isEmpty(bin)){
             return null;
         }
@@ -941,7 +950,7 @@ public class EOSOperations implements ChainCommonOperations {
         Action action=new Action(EOSIO,ACTION_BUYRAMEOS,bin,auths);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
-        String result=pushTransaction(context,true,actions,null);
+        String result=pushTransaction(context,actions,null);
         Log.i(TAG,"result of buyram,payer:"+payer+",receiver:"+receiver+",quant:"+eos+",result:"+result);
         return result;
     }
@@ -953,7 +962,7 @@ public class EOSOperations implements ChainCommonOperations {
         HashMap<String,String>params=new HashMap<String,String>();
         params.put(PARAM_ACCOUNT,account);
         params.put(PARAM_BYTES,String.valueOf(bytes));
-        String bin=jsonToBin(true,EOSIO,ACTION_SELLRAM,params);
+        String bin=jsonToBin(EOSIO,ACTION_SELLRAM,params);
         if(TextUtils.isEmpty(bin)){
             return null;
         }
@@ -971,7 +980,7 @@ public class EOSOperations implements ChainCommonOperations {
         Action action=new Action(EOSIO,ACTION_SELLRAM,bin,auths);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
-        String result=pushTransaction(context,true,actions,null);
+        String result=pushTransaction(context,actions,null);
         Log.i(TAG,"result of sellram,account:"+account+",bytes:"+bytes+",result:"+result);
         return result;
     }
@@ -981,9 +990,9 @@ public class EOSOperations implements ChainCommonOperations {
         params.put(PARAM_FROM,payer);
         params.put(PARAM_RECEIVER,receiver);
         params.put("transfer","false");
-        params.put("stake_cpu_quantity",String.valueOf(cpu)+".0000 EOS");
-        params.put("stake_net_quantity",String.valueOf(net)+".0000 EOS");
-        String bin=jsonToBin(true,EOSIO,ACTION_DELEGATEBW,params);
+        params.put("stake_cpu_quantity",String.valueOf(cpu)+".0000 "+EOSUtils.getSysTokenName());
+        params.put("stake_net_quantity",String.valueOf(net)+".0000 "+EOSUtils.getSysTokenName());
+        String bin=jsonToBin(EOSIO,ACTION_DELEGATEBW,params);
         if(TextUtils.isEmpty(bin)){
             return null;
         }
@@ -1001,7 +1010,7 @@ public class EOSOperations implements ChainCommonOperations {
         Action action=new Action(EOSIO,ACTION_DELEGATEBW,bin,auths);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
-        String result=pushTransaction(context,true,actions,null);
+        String result=pushTransaction(context,actions,null);
         Log.i(TAG,"result of delegatebw,payer:"+payer+"receiver:"+receiver+"cpu:"+cpu+",net:"+net+",result:"+result);
         return result;
     }
@@ -1010,9 +1019,9 @@ public class EOSOperations implements ChainCommonOperations {
         HashMap<String,String>params=new HashMap<String,String>();
         params.put(PARAM_FROM,payer);
         params.put(PARAM_RECEIVER,receiver);
-        params.put("unstake_cpu_quantity",String.valueOf(cpu)+".0000 EOS");
-        params.put("unstake_net_quantity",String.valueOf(net)+".0000 EOS");
-        String bin=jsonToBin(true,EOSIO,ACTION_UNDELEGATEBW,params);
+        params.put("unstake_cpu_quantity",String.valueOf(cpu)+".0000 "+EOSUtils.getSysTokenName());
+        params.put("unstake_net_quantity",String.valueOf(net)+".0000 "+EOSUtils.getSysTokenName());
+        String bin=jsonToBin(EOSIO,ACTION_UNDELEGATEBW,params);
         if(TextUtils.isEmpty(bin)){
             return null;
         }
@@ -1030,7 +1039,7 @@ public class EOSOperations implements ChainCommonOperations {
         Action action=new Action(EOSIO,ACTION_UNDELEGATEBW,bin,auths);
         ArrayList<Action> actions=new ArrayList<Action>();
         actions.add(action);
-        String result=pushTransaction(context,true,actions,null);
+        String result=pushTransaction(context,actions,null);
         Log.i(TAG,"result of undelegatebw,payer:"+payer+"receiver:"+receiver+"cpu:"+cpu+",net:"+net+",result:"+result);
         return result;
     }

@@ -1,7 +1,14 @@
 package com.maods.bctest.EOS;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.maods.bctest.BCTestApp;
+import com.maods.bctest.GlobalConstants;
+import com.maods.bctest.GlobalUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +24,12 @@ import java.util.List;
 
 public class EOSUtils {
     private static final String TAG="EOSUtils";
-    private static final String[] CANDIDATE_NODES=new String[]{
+    public static final String NET_EOS_MAIN_NET="eos_main_net";
+    public static final String NET_EOS_KYLIN_TEST_NET="kylin_test_net";
+    public static final String NET_EOS_BOS_MAIN_NET="bos_main_net";
+    public static final String TOKEN_EOS="EOS";
+    public static final String TOKEN_BOS="BOS";
+    private static final String[] MAIN_NET_CANDIDATE_NODES=new String[]{
             "http://api.eosbeijing.one",
             "http://api.oraclechain.io",
             "http://eosapi.nodepacific.com:8888",
@@ -34,6 +46,12 @@ public class EOSUtils {
             "http://publicapi-mainnet.eosauthority.com",
             "http://api.bp.fish"
     };
+    private static final String[] KYLIN_TEST_NET_CANDIDATE_NOTES=new String[]{
+        "http://39.108.231.157:30065"
+    };
+    private static final String[] BOS_MAIN_NET_CANDIDATE_NOTES=new String[]{
+
+    };
     public static final String VERSION = "v1";
     public static final String API_CHAIN = "chain";
     public static final String API_WALLET="wallet";
@@ -48,7 +66,26 @@ public class EOSUtils {
     private static List<String> sServerNodes=new ArrayList<String>();
     private static int sTestedNode=0;
 
+    private static final String PREF_CURRENT_NET="current_net";
+    public static final String[] AVAILABLE_EOS_NETS=new String[]{
+            NET_EOS_MAIN_NET,
+            NET_EOS_KYLIN_TEST_NET,
+            NET_EOS_BOS_MAIN_NET
+    };
 
+    public static String getCurrentNet(){
+        SharedPreferences pref= PreferenceManager.getDefaultSharedPreferences(BCTestApp.getContext());
+        String net=pref.getString(PREF_CURRENT_NET,NET_EOS_MAIN_NET);
+        Log.i(TAG,"get current net:"+net);
+        return net;
+    }
+
+    public static void setCurrentNet(Context context,String newNet){
+        SharedPreferences pref= PreferenceManager.getDefaultSharedPreferences(context);
+        pref.edit().putString(PREF_CURRENT_NET,newNet).commit();
+        sServerTested=false;
+        Log.i(TAG,"set current net:"+newNet);
+    }
     //Can't run in UI thread
     public static List<String> getAvailableServers(){
         synchronized (mServerTestSync) {
@@ -59,18 +96,38 @@ public class EOSUtils {
                 sServerNodes.clear();
             }
         }
-        for(int i=0;i<CANDIDATE_NODES.length;i++){
-            final String target=CANDIDATE_NODES[i];
+        String[] availableNets;
+        final int testServerCount;
+        switch(getCurrentNet()){
+            case NET_EOS_MAIN_NET:
+                availableNets=MAIN_NET_CANDIDATE_NODES;
+                testServerCount=5;
+                break;
+            case NET_EOS_KYLIN_TEST_NET:
+                availableNets=KYLIN_TEST_NET_CANDIDATE_NOTES;
+                testServerCount=1;
+                break;
+            case NET_EOS_BOS_MAIN_NET:
+                availableNets=BOS_MAIN_NET_CANDIDATE_NOTES;
+                testServerCount=1;
+                break;
+            default:
+                availableNets=new String[]{};
+                testServerCount=0;
+        }
+        for(int i=0;i<availableNets.length;i++){
+            final String target=availableNets[i];
             URL url=null;
             Thread t=new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String result=EOSOperations.getActions(target,"eosio",-1,-1);
+                    //String result=EOSOperations.getActions(target,"eosio",-1,-1);
+                    String result= EOSOperations.getInfo(target);
                     if(!TextUtils.isEmpty(result)){
                         synchronized (mServerTestSync) {
                             sServerNodes.add(target);
                             sTestedNode++;
-                            if (sTestedNode >= 5) {
+                            if (sTestedNode >= testServerCount) {
                                 mServerTestSync.notify();
                             }
                         }
@@ -90,14 +147,31 @@ public class EOSUtils {
         return sServerNodes;
     }
 
-    public static List<String> getTestNetServers(){
+    public static String getSysTokenName(){
+        String token;
+        switch(getCurrentNet()){
+            case NET_EOS_MAIN_NET:
+            case NET_EOS_KYLIN_TEST_NET:
+                token=TOKEN_EOS;
+                break;
+            case NET_EOS_BOS_MAIN_NET:
+                token=TOKEN_BOS;
+                break;
+            default:
+                token=TOKEN_EOS;
+                break;
+        }
+        return token;
+    }
+
+    /*public static List<String> getTestNetServers(){
         ArrayList<String>result=new ArrayList<String>();
         result.add("https://api-kylin.eosasia.one");
         return result;
-    }
+    }*/
 
     public static boolean isAccountNameLeagle(String input){
-        if(input.startsWith("eos")){//for eos system accounts.
+        if(input.startsWith("eos") || input.contains(".")){//for eos system accounts.
             return true;
         }
         if(input.length()!=EOSUtils.ACCOUNT_LENGTH){

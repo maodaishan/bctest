@@ -3,7 +3,11 @@ package com.maods.bctest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.maods.bctest.UI.EOSInfoActivity;
 
 import org.json.JSONObject;
 

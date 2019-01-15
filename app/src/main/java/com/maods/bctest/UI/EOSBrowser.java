@@ -301,7 +301,7 @@ public class EOSBrowser extends Activity {
         auth.put(EOSOperations.ACTOR,mAuthAccount.getText().toString());
         auth.put(EOSOperations.PERMISSION,mAuthPermission.getText().toString());
         auths.add(auth);
-        mExecuteResult=EOSOperations.executeAction(this,true,mAccount,contract,args,auths);
+        mExecuteResult=EOSOperations.executeAction(this,mAccount,contract,args,auths);
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
