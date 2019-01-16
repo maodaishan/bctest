@@ -27,6 +27,7 @@ public class EOSUtils {
     public static final String NET_EOS_MAIN_NET="eos_main_net";
     public static final String NET_EOS_KYLIN_TEST_NET="kylin_test_net";
     public static final String NET_EOS_BOS_MAIN_NET="bos_main_net";
+    public static final String NET_EOS_BOS_TEST_NET="bos_test_net";
     public static final String TOKEN_EOS="EOS";
     public static final String TOKEN_BOS="BOS";
     private static final String[] MAIN_NET_CANDIDATE_NODES=new String[]{
@@ -47,11 +48,33 @@ public class EOSUtils {
             "http://api.bp.fish"
     };
     private static final String[] KYLIN_TEST_NET_CANDIDATE_NOTES=new String[]{
-        "http://39.108.231.157:30065"
+        "http://39.108.231.157:30065",
+            "http://api.jeda.one",
+            "http://eosapi.nodepacific.com:8888",
+            "http://api.eostribe.io",
+            "http://fn001.eossv.org:80",
+            "http://api-mainnet.starteos.io",
+            "http://api.eosn.io",
+            "http://api.tokenika.io",
+            "http://mainnet.eoscanada.com"
     };
     private static final String[] BOS_MAIN_NET_CANDIDATE_NOTES=new String[]{
 
     };
+    private static final String[] BOS_TEST_NET_CANDIDATE_NOTES=new String[]{
+            "http://47.254.82.241:80",
+            "http://47.254.134.167:80",
+            "http://49.129.133.66:80",
+            "http://8.208.9.182:80",
+            "http://47.91.244.124:80",
+            "http://120.197.130.117:8020",
+            "http://bos-testnet.meet.one:8888",
+            "http://bos-testnet.mytokenpocket.vip:8890",
+            "https://bos-testnet.eosphere.io",
+            "https://boscore.eosrio.io",
+            "https://api.bostest.alohaeos.com"
+    };
+
     public static final String VERSION = "v1";
     public static final String API_CHAIN = "chain";
     public static final String API_WALLET="wallet";
@@ -70,7 +93,8 @@ public class EOSUtils {
     public static final String[] AVAILABLE_EOS_NETS=new String[]{
             NET_EOS_MAIN_NET,
             NET_EOS_KYLIN_TEST_NET,
-            NET_EOS_BOS_MAIN_NET
+            NET_EOS_BOS_MAIN_NET,
+            NET_EOS_BOS_TEST_NET
     };
 
     public static String getCurrentNet(){
@@ -111,9 +135,14 @@ public class EOSUtils {
                 availableNets=BOS_MAIN_NET_CANDIDATE_NOTES;
                 testServerCount=1;
                 break;
+            case NET_EOS_BOS_TEST_NET:
+                availableNets=BOS_TEST_NET_CANDIDATE_NOTES;
+                testServerCount=1;
+                break;
             default:
                 availableNets=new String[]{};
                 testServerCount=0;
+                break;
         }
         for(int i=0;i<availableNets.length;i++){
             final String target=availableNets[i];
@@ -155,6 +184,7 @@ public class EOSUtils {
                 token=TOKEN_EOS;
                 break;
             case NET_EOS_BOS_MAIN_NET:
+            case NET_EOS_BOS_TEST_NET:
                 token=TOKEN_BOS;
                 break;
             default:

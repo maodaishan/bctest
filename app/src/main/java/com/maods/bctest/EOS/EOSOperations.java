@@ -434,10 +434,15 @@ public class EOSOperations implements ChainCommonOperations {
                             case EOSUtils.NET_EOS_MAIN_NET:
                             case EOSUtils.NET_EOS_KYLIN_TEST_NET:
                             default:
-                                bpInfo=bp+"bp.json";
+                                bpInfo=bp+"/bp.json";
                                 break;
                         }
-                        String infoStr=GlobalUtils.getContentFromUrl(bpInfo);
+                        String infoStr;
+                        try {
+                            infoStr= GlobalUtils.getContentFromUrl(bpInfo);
+                        }catch(Exception e){
+                            infoStr=null;
+                        }
                         Log.i(TAG,"json from "+bp+" is:"+infoStr );
                         if(!TextUtils.isEmpty(infoStr)) {
                             try {
