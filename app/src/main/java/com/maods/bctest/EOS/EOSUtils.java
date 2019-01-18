@@ -59,7 +59,17 @@ public class EOSUtils {
             "http://mainnet.eoscanada.com"
     };
     private static final String[] BOS_MAIN_NET_CANDIDATE_NOTES=new String[]{
-
+            "https://api.bos.eosrio.io",
+            "https://api.bossweden.org",
+            "http://bosapi-one.eosstore.co:8888",
+            "http://bosapi-two.eosstore.co:8888",
+            "https://api.hellobos.one",
+            "http://api.eoshexagon.com:20888",
+            "https://bosmatrix.blockmatrix.network",
+            "https://api.bos42.io",
+            "https://api-bos.oraclechain.io",
+            "http://bosafrique.eosnairobi.io:9588",
+            "https://bos-api.eoseoul.io"
     };
     private static final String[] BOS_TEST_NET_CANDIDATE_NOTES=new String[]{
             "http://47.254.82.241:80",
