@@ -28,24 +28,34 @@ public class EOSUtils {
     public static final String NET_EOS_KYLIN_TEST_NET="kylin_test_net";
     public static final String NET_EOS_BOS_MAIN_NET="bos_main_net";
     public static final String NET_EOS_BOS_TEST_NET="bos_test_net";
+    public static final String NET_EOS_MEETONE_MAIN_NET="meetone_main_net";
     public static final String TOKEN_EOS="EOS";
     public static final String TOKEN_BOS="BOS";
+    public static final String TOKEN_MEETONE="MEETONE";
+    public static int MAINNET=1;
+    public static int TESTNET=2;
     private static final String[] MAIN_NET_CANDIDATE_NODES=new String[]{
             "http://api.eosbeijing.one",
-            "http://api.oraclechain.io",
+            "http://api.jeda.one",
             "http://eosapi.nodepacific.com:8888",
-            "http://api.eosstore.co:6789",
-            "http://node2.liquideos.com",
-            "http://api.eoseoul.io",
-            "http://api.eostribe.io",
-            "http://mainnet.eoscalgary.io",
             "http://api-mainnet.starteos.io",
-            "http://eos.genesis-mining.com",
-            "http://eu.eosdac.io",
-            "http://api-mainnet.eosgravity.com",
-            "http://eos.greymass.com",
+            "http://eos.unlimitedeos.com:7777",
             "http://publicapi-mainnet.eosauthority.com",
-            "http://api.bp.fish"
+            "http://api.cypherglass.com",
+            "http://eu.eosdac.io",
+            "http://api.eostitan.com",
+            "http://api.oraclechain.io",
+            "http://eos.eoscafeblock.com",
+            "http://eos.greymass.com",
+            "http://api-mainnet.eospacex.com",
+            "http://peer1.eoshuobipool.com:8181",
+            "http://api.bitmars.one",
+            "http://mainnet.libertyblock.io:8888",
+            "http://mainnet.eosio.sg",
+            "http://bp.cryptolions.io",
+            "http://mars.fn.eosbixin.com",
+            "http://node2.liquideos.com",
+            "http://mainnet.eoscanada.com"
     };
     private static final String[] KYLIN_TEST_NET_CANDIDATE_NOTES=new String[]{
         "http://39.108.231.157:30065",
@@ -84,6 +94,25 @@ public class EOSUtils {
             "https://boscore.eosrio.io",
             "https://api.bostest.alohaeos.com"
     };
+    private static final String[] MEETONE_MAIN_NET_CANDIDATE_NOTES=new String[]{
+            "http://mainnet.eosio.sg",
+            "http://mars.fn.eosbixin.com",
+            "http://api1.acroeos.one",
+            "https://telosseed.ikuwara.com:8889",
+            "http://bp.cryptolions.io",
+            "http://api.eosn.io",
+            "http://api-mainnet.starteos.io",
+            "http://mainnet.eosnairobi.io",
+            "http://api-meetone.eossv.org",
+            "http://api.nytelos.com",
+            "http://api-eos.blckchnd.com",
+            "http://meetone.eossweden.eu",
+            "http://api.eostribe.io",
+            "http://api-meetone.eosbeijing.one",
+            "http://node1.eosphere.io",
+            "http://mainnet.genereos.io",
+            "http://api.eosvenezuela.io:8888"
+    };
 
     public static final String VERSION = "v1";
     public static final String API_CHAIN = "chain";
@@ -104,7 +133,8 @@ public class EOSUtils {
             NET_EOS_MAIN_NET,
             NET_EOS_KYLIN_TEST_NET,
             NET_EOS_BOS_MAIN_NET,
-            NET_EOS_BOS_TEST_NET
+            NET_EOS_BOS_TEST_NET,
+            NET_EOS_MEETONE_MAIN_NET
     };
 
     public static String getCurrentNet(){
@@ -147,6 +177,10 @@ public class EOSUtils {
                 break;
             case NET_EOS_BOS_TEST_NET:
                 availableNets=BOS_TEST_NET_CANDIDATE_NOTES;
+                testServerCount=1;
+                break;
+            case NET_EOS_MEETONE_MAIN_NET:
+                availableNets=MEETONE_MAIN_NET_CANDIDATE_NOTES;
                 testServerCount=1;
                 break;
             default:
@@ -197,6 +231,9 @@ public class EOSUtils {
             case NET_EOS_BOS_TEST_NET:
                 token=TOKEN_BOS;
                 break;
+            case NET_EOS_MEETONE_MAIN_NET:
+                token=TOKEN_MEETONE;
+                break;
             default:
                 token=TOKEN_EOS;
                 break;
@@ -224,5 +261,32 @@ public class EOSUtils {
             }
         }
         return true;
+    }
+
+    public static double getDoubleFromAsset(String asset){
+        switch(getCurrentNet()){
+            case NET_EOS_MEETONE_MAIN_NET:
+                if(asset.endsWith("RAM")){
+                    return Double.parseDouble(asset.substring(0,asset.length()-4));
+                }else {
+                    return Double.parseDouble(asset.substring(0, asset.length() - 8));
+                }
+            default:
+                return Double.parseDouble(asset.substring(0,asset.length()-4));
+        }
+    }
+
+    public static int getNetType(){
+        switch(getCurrentNet()){
+            case NET_EOS_MAIN_NET:
+            case NET_EOS_BOS_MAIN_NET:
+            case NET_EOS_MEETONE_MAIN_NET:
+                return MAINNET;
+            case NET_EOS_KYLIN_TEST_NET:
+            case NET_EOS_BOS_TEST_NET:
+                return TESTNET;
+            default:
+                return MAINNET;
+        }
     }
 }

@@ -42,7 +42,7 @@ public class TypeAccountName extends TypeName {
                 throw new IllegalArgumentException("account name can only be 12 chars long: " + name) ; // changed from dawn3
             }
 
-            if ( (name.indexOf( CHAR_NOT_ALLOWED) >= 0) && ! name.startsWith("eosio.") ){
+            if ( (name.indexOf( CHAR_NOT_ALLOWED) >= 0) && !(name.startsWith("eosio.") || name.endsWith(".m"))  ){
                 throw new IllegalArgumentException("account name must not contain '.': " + name);
             }
         }

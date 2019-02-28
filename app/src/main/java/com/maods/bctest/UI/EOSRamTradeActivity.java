@@ -161,8 +161,8 @@ public class EOSRamTradeActivity extends Activity {
                         return;
                     }
                     String liquidBalanceStrRaw=accountJson.getString("core_liquid_balance");
-                    String liquidBalanceStr=liquidBalanceStrRaw.substring(0,liquidBalanceStrRaw.length()-4);
-                    double liquidBalance=Double.parseDouble(liquidBalanceStr);
+                    //String liquidBalanceStr=liquidBalanceStrRaw.substring(0,liquidBalanceStrRaw.length()-4);
+                    double liquidBalance=EOSUtils.getDoubleFromAsset(liquidBalanceStrRaw);//Double.parseDouble(liquidBalanceStr);
                     int ramRaw=accountJson.getInt("ram_quota");
                     double netWeight=accountJson.getDouble("net_weight");
                     double cpuWeight=accountJson.getDouble("cpu_weight");

@@ -340,15 +340,13 @@ public class EOSOperations implements ChainCommonOperations {
             String ramBalance=base.getString("balance");
             JSONObject quote = data.getJSONObject("quote");
             String eosBalance=quote.getString("balance");
-            float ram=0;
-            float eos=0;
+            double ram=0;
+            double eos=0;
             try {
                 //remove " RAM" and " EOS" from the string.
-                ramBalance=ramBalance.substring(0,ramBalance.length()-4);
-                eosBalance=eosBalance.substring(0,eosBalance.length()-4);
-                ram = Float.parseFloat(ramBalance);
-                eos = Float.parseFloat(eosBalance);
-                float ramPrice=eos/ram;//price for every Byte.
+                ram = EOSUtils.getDoubleFromAsset(ramBalance);
+                eos = EOSUtils.getDoubleFromAsset(eosBalance);
+                double ramPrice=eos/ram;//price for every Byte.
                 ramPrice=ramPrice*1024;//return value is for every KB.
                 result.append("RAM price:"+ramPrice);
                 result.append("\nOriginal data:"+jsonStr);
@@ -450,10 +448,31 @@ public class EOSOperations implements ChainCommonOperations {
                                 JSONArray nodes = infoJson.getJSONArray("nodes");
                                 Log.i(TAG, "nodes:" + nodes);
                                 if (nodes != null) {
-                                    JSONObject node = nodes.getJSONObject(0);
-                                    String apiUrl = node.optString("api_endpoint");
+                                    String apiUrl=null;
+                                    for(int x=0;x<nodes.length();x++){
+                                        JSONObject node=nodes.getJSONObject(x);
+                                        String nodeType=node.optString("node_type");
+                                        //Log.i(TAG,"nodetype:"+nodeType);
+                                        boolean isNeeded=false;
+                                        if(!TextUtils.isEmpty(nodeType)){
+                                            if(nodeType.equals("mainnet") && EOSUtils.getNetType()==EOSUtils.MAINNET){
+                                                isNeeded=true;
+                                            }else if(nodeType.equals("testnet") && EOSUtils.getNetType()==EOSUtils.TESTNET){
+                                                isNeeded=true;
+                                            }else if(nodeType.equals("full")){
+                                                isNeeded=true;
+                                            }
+                                        }
+                                        if(!isNeeded){
+                                            continue;
+                                        }
+                                        apiUrl = node.optString("api_endpoint");
+                                        if(!TextUtils.isEmpty(apiUrl)){
+                                            break;
+                                        }
+                                    }
                                     Log.i(TAG, "api_endpoint:" + apiUrl);
-                                    if (!TextUtils.isEmpty(apiUrl)) {
+                                    if (!TextUtils.isEmpty(apiUrl) && !apiUrl.startsWith("p2p")) {
                                         long before=System.currentTimeMillis();
                                         if(!test_history) {
                                             if (testAPIServerAvailable(apiUrl)) {
@@ -1202,8 +1221,8 @@ public class EOSOperations implements ChainCommonOperations {
                 return null;
             }
             String liquidBalanceStrRaw=accountJson.getString("core_liquid_balance");
-            String liquidBalanceStr=liquidBalanceStrRaw.substring(0,liquidBalanceStrRaw.length()-4);
-            double liquidBalance=Double.parseDouble(liquidBalanceStr);
+            //String liquidBalanceStr=liquidBalanceStrRaw.substring(0,liquidBalanceStrRaw.length()-4);
+            double liquidBalance=EOSUtils.getDoubleFromAsset(liquidBalanceStrRaw);//Double.parseDouble(liquidBalanceStr);
             int ramRaw=accountJson.getInt("ram_quota");
             double netWeight=accountJson.getDouble("net_weight");
             double cpuWeight=accountJson.getDouble("cpu_weight");
