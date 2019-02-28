@@ -101,7 +101,8 @@ public class ChainHomeActivity extends Activity {
         mEmptyView=(TextView)findViewById(R.id.empty);
         mListView=(ListView)findViewById(R.id.list);
         mCurrNetView=findViewById(R.id.curr_net);
-        mCurrNetView.setText(EOSUtils.getCurrentNet());
+        mCurrNetView.setText(EOSUtils.getCurrentNetName());
+        EOSUtils.setCurrentNet(this,EOSUtils.getCurrentNetName());
         mChooseNetView=findViewById(R.id.choose_net);
         mChooseNetView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -304,7 +305,7 @@ public class ChainHomeActivity extends Activity {
         dialog.show();
         ListView list=view.findViewById(R.id.list);
         List<Map<String,String>>netsArray=new ArrayList<Map<String,String>>();
-        final String[] nets=EOSUtils.AVAILABLE_EOS_NETS;
+        final String[] nets=EOSUtils.getAvailableNets();
         for(int i=0;i<nets.length;i++){
             String net=nets[i];
             Map<String,String>map=new HashMap<String,String>();
@@ -318,7 +319,7 @@ public class ChainHomeActivity extends Activity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String listItem=nets[i];
                 EOSUtils.setCurrentNet(ChainHomeActivity.this,listItem);
-                mCurrNetView.setText(EOSUtils.getCurrentNet());
+                mCurrNetView.setText(EOSUtils.getCurrentNetName());
                 dialog.dismiss();
             }
         });

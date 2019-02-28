@@ -425,15 +425,11 @@ public class EOSOperations implements ChainCommonOperations {
                     @Override
                     public void run() {
                         String bpInfo;
-                        switch(EOSUtils.getCurrentNet()){
-                            case EOSUtils.NET_EOS_BOS_MAIN_NET:
-                                bpInfo=bp+"/bos.json";
-                                break;
-                            case EOSUtils.NET_EOS_MAIN_NET:
-                            case EOSUtils.NET_EOS_KYLIN_TEST_NET:
-                            default:
-                                bpInfo=bp+"/bp.json";
-                                break;
+                        String netName=EOSUtils.getCurrentNetName();
+                        if(netName.startsWith("bos")){
+                            bpInfo=bp+"/bos.json";
+                        }else{
+                            bpInfo=bp+"/bp.json";
                         }
                         String infoStr;
                         try {

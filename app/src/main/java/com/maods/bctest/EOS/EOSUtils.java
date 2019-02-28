@@ -16,7 +16,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by MAODS on 2018/7/19.
@@ -24,95 +27,8 @@ import java.util.List;
 
 public class EOSUtils {
     private static final String TAG="EOSUtils";
-    public static final String NET_EOS_MAIN_NET="eos_main_net";
-    public static final String NET_EOS_KYLIN_TEST_NET="kylin_test_net";
-    public static final String NET_EOS_BOS_MAIN_NET="bos_main_net";
-    public static final String NET_EOS_BOS_TEST_NET="bos_test_net";
-    public static final String NET_EOS_MEETONE_MAIN_NET="meetone_main_net";
-    public static final String TOKEN_EOS="EOS";
-    public static final String TOKEN_BOS="BOS";
-    public static final String TOKEN_MEETONE="MEETONE";
     public static int MAINNET=1;
     public static int TESTNET=2;
-    private static final String[] MAIN_NET_CANDIDATE_NODES=new String[]{
-            "http://api.eosbeijing.one",
-            "http://api.jeda.one",
-            "http://eosapi.nodepacific.com:8888",
-            "http://api-mainnet.starteos.io",
-            "http://eos.unlimitedeos.com:7777",
-            "http://publicapi-mainnet.eosauthority.com",
-            "http://api.cypherglass.com",
-            "http://eu.eosdac.io",
-            "http://api.eostitan.com",
-            "http://api.oraclechain.io",
-            "http://eos.eoscafeblock.com",
-            "http://eos.greymass.com",
-            "http://api-mainnet.eospacex.com",
-            "http://peer1.eoshuobipool.com:8181",
-            "http://api.bitmars.one",
-            "http://mainnet.libertyblock.io:8888",
-            "http://mainnet.eosio.sg",
-            "http://bp.cryptolions.io",
-            "http://mars.fn.eosbixin.com",
-            "http://node2.liquideos.com",
-            "http://mainnet.eoscanada.com"
-    };
-    private static final String[] KYLIN_TEST_NET_CANDIDATE_NOTES=new String[]{
-        "http://39.108.231.157:30065",
-            "http://api.jeda.one",
-            "http://eosapi.nodepacific.com:8888",
-            "http://api.eostribe.io",
-            "http://fn001.eossv.org:80",
-            "http://api-mainnet.starteos.io",
-            "http://api.eosn.io",
-            "http://api.tokenika.io",
-            "http://mainnet.eoscanada.com"
-    };
-    private static final String[] BOS_MAIN_NET_CANDIDATE_NOTES=new String[]{
-            "https://api.bos.eosrio.io",
-            "https://api.bossweden.org",
-            "http://bosapi-one.eosstore.co:8888",
-            "http://bosapi-two.eosstore.co:8888",
-            "https://api.hellobos.one",
-            "http://api.eoshexagon.com:20888",
-            "https://bosmatrix.blockmatrix.network",
-            "https://api.bos42.io",
-            "https://api-bos.oraclechain.io",
-            "http://bosafrique.eosnairobi.io:9588",
-            "https://bos-api.eoseoul.io"
-    };
-    private static final String[] BOS_TEST_NET_CANDIDATE_NOTES=new String[]{
-            "http://47.254.82.241:80",
-            "http://47.254.134.167:80",
-            "http://49.129.133.66:80",
-            "http://8.208.9.182:80",
-            "http://47.91.244.124:80",
-            "http://120.197.130.117:8020",
-            "http://bos-testnet.meet.one:8888",
-            "http://bos-testnet.mytokenpocket.vip:8890",
-            "https://bos-testnet.eosphere.io",
-            "https://boscore.eosrio.io",
-            "https://api.bostest.alohaeos.com"
-    };
-    private static final String[] MEETONE_MAIN_NET_CANDIDATE_NOTES=new String[]{
-            "http://mainnet.eosio.sg",
-            "http://mars.fn.eosbixin.com",
-            "http://api1.acroeos.one",
-            "https://telosseed.ikuwara.com:8889",
-            "http://bp.cryptolions.io",
-            "http://api.eosn.io",
-            "http://api-mainnet.starteos.io",
-            "http://mainnet.eosnairobi.io",
-            "http://api-meetone.eossv.org",
-            "http://api.nytelos.com",
-            "http://api-eos.blckchnd.com",
-            "http://meetone.eossweden.eu",
-            "http://api.eostribe.io",
-            "http://api-meetone.eosbeijing.one",
-            "http://node1.eosphere.io",
-            "http://mainnet.genereos.io",
-            "http://api.eosvenezuela.io:8888"
-    };
 
     public static final String VERSION = "v1";
     public static final String API_CHAIN = "chain";
@@ -129,17 +45,45 @@ public class EOSUtils {
     private static int sTestedNode=0;
 
     private static final String PREF_CURRENT_NET="current_net";
-    public static final String[] AVAILABLE_EOS_NETS=new String[]{
-            NET_EOS_MAIN_NET,
-            NET_EOS_KYLIN_TEST_NET,
-            NET_EOS_BOS_MAIN_NET,
-            NET_EOS_BOS_TEST_NET,
-            NET_EOS_MEETONE_MAIN_NET
-    };
 
-    public static String getCurrentNet(){
+    private static HashMap<String,EosNetParams> sEosNetsMap=new HashMap<String,EosNetParams>();
+    static{
+        EosNetParams eosMainNet=new EOSMainNet();
+        sEosNetsMap.put(eosMainNet.getNetName(),eosMainNet);
+        EOSKylinTestNet kylinTestNet=new EOSKylinTestNet();
+        sEosNetsMap.put(kylinTestNet.getNetName(),kylinTestNet);
+        BOSMainNet bosMainNet=new BOSMainNet();
+        sEosNetsMap.put(bosMainNet.getNetName(),bosMainNet);
+        BOSTestNet bosTestNet=new BOSTestNet();
+        sEosNetsMap.put(bosTestNet.getNetName(),bosTestNet);
+        MEETONEMainNet meetone=new MEETONEMainNet();
+        sEosNetsMap.put(meetone.getNetName(),meetone);
+    }
+    public interface EosNetParams{
+        public String getNetName();
+        public String[] getCandidateNodes();
+        public String getSysTokenName();
+        public double getDoubleFromAsset(String asset);
+        public int getNetType();
+    }
+
+    public static String[] getAvailableNets(){
+        Iterator<Map.Entry<String,EosNetParams>> ite=sEosNetsMap.entrySet().iterator();
+        ArrayList<String> nets=new ArrayList<String>();
+        while(ite.hasNext()){
+            Map.Entry<String,EosNetParams> entry=ite.next();
+            nets.add(entry.getKey());
+        }
+        String[] result=new String[nets.size()];
+        for(int i=0;i<nets.size();i++){
+            String net=nets.get(i);
+            result[i]=net;
+        }
+        return result;
+    }
+    public static String getCurrentNetName(){
         SharedPreferences pref= PreferenceManager.getDefaultSharedPreferences(BCTestApp.getContext());
-        String net=pref.getString(PREF_CURRENT_NET,NET_EOS_MAIN_NET);
+        String net=pref.getString(PREF_CURRENT_NET,"eos_main_net");
         Log.i(TAG,"get current net:"+net);
         return net;
     }
@@ -150,6 +94,12 @@ public class EOSUtils {
         sServerTested=false;
         Log.i(TAG,"set current net:"+newNet);
     }
+
+    public static EosNetParams getCurrentNetParams(){
+        String name=getCurrentNetName();
+        return sEosNetsMap.get(name);
+    }
+
     //Can't run in UI thread
     public static List<String> getAvailableServers(){
         synchronized (mServerTestSync) {
@@ -160,33 +110,11 @@ public class EOSUtils {
                 sServerNodes.clear();
             }
         }
-        String[] availableNets;
-        final int testServerCount;
-        switch(getCurrentNet()){
-            case NET_EOS_MAIN_NET:
-                availableNets=MAIN_NET_CANDIDATE_NODES;
-                testServerCount=5;
-                break;
-            case NET_EOS_KYLIN_TEST_NET:
-                availableNets=KYLIN_TEST_NET_CANDIDATE_NOTES;
-                testServerCount=1;
-                break;
-            case NET_EOS_BOS_MAIN_NET:
-                availableNets=BOS_MAIN_NET_CANDIDATE_NOTES;
-                testServerCount=1;
-                break;
-            case NET_EOS_BOS_TEST_NET:
-                availableNets=BOS_TEST_NET_CANDIDATE_NOTES;
-                testServerCount=1;
-                break;
-            case NET_EOS_MEETONE_MAIN_NET:
-                availableNets=MEETONE_MAIN_NET_CANDIDATE_NOTES;
-                testServerCount=1;
-                break;
-            default:
-                availableNets=new String[]{};
-                testServerCount=0;
-                break;
+        String[] availableNets=new String[0];
+        final int testServerCount=1;
+        EosNetParams netParams=getCurrentNetParams();
+        if(netParams!=null){
+            availableNets=netParams.getCandidateNodes();
         }
         for(int i=0;i<availableNets.length;i++){
             final String target=availableNets[i];
@@ -221,24 +149,8 @@ public class EOSUtils {
     }
 
     public static String getSysTokenName(){
-        String token;
-        switch(getCurrentNet()){
-            case NET_EOS_MAIN_NET:
-            case NET_EOS_KYLIN_TEST_NET:
-                token=TOKEN_EOS;
-                break;
-            case NET_EOS_BOS_MAIN_NET:
-            case NET_EOS_BOS_TEST_NET:
-                token=TOKEN_BOS;
-                break;
-            case NET_EOS_MEETONE_MAIN_NET:
-                token=TOKEN_MEETONE;
-                break;
-            default:
-                token=TOKEN_EOS;
-                break;
-        }
-        return token;
+        EosNetParams params=getCurrentNetParams();
+        return params.getSysTokenName();
     }
 
     /*public static List<String> getTestNetServers(){
@@ -264,29 +176,12 @@ public class EOSUtils {
     }
 
     public static double getDoubleFromAsset(String asset){
-        switch(getCurrentNet()){
-            case NET_EOS_MEETONE_MAIN_NET:
-                if(asset.endsWith("RAM")){
-                    return Double.parseDouble(asset.substring(0,asset.length()-4));
-                }else {
-                    return Double.parseDouble(asset.substring(0, asset.length() - 8));
-                }
-            default:
-                return Double.parseDouble(asset.substring(0,asset.length()-4));
-        }
+        EosNetParams params=getCurrentNetParams();
+        return params.getDoubleFromAsset(asset);
     }
 
     public static int getNetType(){
-        switch(getCurrentNet()){
-            case NET_EOS_MAIN_NET:
-            case NET_EOS_BOS_MAIN_NET:
-            case NET_EOS_MEETONE_MAIN_NET:
-                return MAINNET;
-            case NET_EOS_KYLIN_TEST_NET:
-            case NET_EOS_BOS_TEST_NET:
-                return TESTNET;
-            default:
-                return MAINNET;
-        }
+        EosNetParams params=getCurrentNetParams();
+        return params.getNetType();
     }
 }
