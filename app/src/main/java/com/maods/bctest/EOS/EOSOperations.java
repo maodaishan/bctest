@@ -369,6 +369,17 @@ public class EOSOperations implements ChainCommonOperations {
      * TODO: we need a seed server, how to get it? may need centralized way now.
      */
     public static String getAvailableAPIServer(boolean test_history){
+        EOSUtils.EosNetParams param=EOSUtils.getCurrentNetParams();
+        if(param.getNetName().contains("meetone")){
+            StringBuilder sb=new StringBuilder();
+            sb.append("Meet.one do not has its own xxx/bp.json, so it is not safe to test latest rpc servers," +
+                    "below are directly copyed from its github:,");
+            String[] nodes=param.getCandidateNodes();
+            for(int i=0;i<nodes.length;i++){
+                sb.append(nodes[i]+",");
+            }
+            return sb.toString();
+        }
         List<String>servers=EOSUtils.getAvailableServers();
         if(servers.size()==0){
             return null;
