@@ -479,7 +479,7 @@ public class EOSOperations implements ChainCommonOperations {
                                         }
                                     }
                                     Log.i(TAG, "api_endpoint:" + apiUrl);
-                                    if (!TextUtils.isEmpty(apiUrl) && !apiUrl.startsWith("p2p")) {
+                                    if (!TextUtils.isEmpty(apiUrl) && apiUrl.startsWith("http")) {
                                         long before=System.currentTimeMillis();
                                         if(!test_history) {
                                             if (testAPIServerAvailable(apiUrl)) {

@@ -5,15 +5,10 @@ package com.maods.bctest.EOS;
 
 public class EOSMainNet implements EOSUtils.EosNetParams {
     private String[] CANDIDATE_NODES=new String[]{
-            "https://fullnode.meet.one",
-            "https://api.meetone.eostribe.io",
-            "https://meetseed.ikuwara.com:8889",
-            "https://api.meetone.alohaeos.com",
-            "https://meetone.eossweden.eu",
-            "http://api-meetone.eossf.net:8888",
-            "https://meetone.eosphere.io",
-            "https://meetone.eosn.io",
-            "https://meetone.eosargentina.io"
+            "http://mainnet.meet.one",
+            "http://api-mainnet.starteos.io",
+            "http://api.eosn.io",
+            "http://api1.eosasia.one"
     };
     @Override
     public String getNetName() {

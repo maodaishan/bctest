@@ -31,7 +31,7 @@ import retrofit2.http.HTTP;
 
 public class GlobalUtils {
     private static final String TAG="GlobalUtils";
-    private static int CONNECTION_TIMEOUT=5*1000;
+    private static int CONNECTION_TIMEOUT=1000;
     private static final String ENCODE="UTF-8";
 
     /**
